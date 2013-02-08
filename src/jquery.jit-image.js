@@ -106,23 +106,26 @@
 	$.fn.jitImage = function (options) {
 		var
 		
-		o = $.extend({}, _defaults, options),
-		
 		t = $(this),
 		
 		_each = function (index, element) {
-			return _update($(element), o);
+			var 
+			o = $.extend({}, _defaults, options),
+			t = $(element);
+			// assure container
+			// do it here since elements may have
+			// different parents
+			o.container = !!o.container ? $(o.container) : t.parent();
+			// save options
+			t.data(DATA_KEY, o);
+			// update attributes
+			return _update(t, o);
 		};
-		
-		// assure container
-		o.container = !!o.container ? $(o.container) : t.parent();
-		
-		// save options
-		t.data(DATA_KEY, o);
 		
 		// flatten our element array
 		instances = instances.add(t);
 		
+		// hook up each element
 		return t.each(_each);
 	};
 	
