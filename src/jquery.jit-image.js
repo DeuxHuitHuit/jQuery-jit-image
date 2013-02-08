@@ -9,6 +9,10 @@
 	
 	"use strict";
 	
+	// assure param values
+	dataAttribute = dataAttribute || 'data-src-format';
+	defaultSelector = defaultSelector || 'img['+dataAttribute+']';
+	
 	var
 	
 	win = $(window),
@@ -25,28 +29,41 @@
 	},
 	
 	_set = function (t, size, url) {
-		t.attr('width', size.width);
-		t.attr('height', size.height);
-		t.width(size.width).height(size.height);
-		t.attr('src', url);
+		if (!!size.width) {
+			t.attr('width', size.width).width(size.width);
+		} else {
+			t.removeAttr('width').width('');
+		}
+		
+		if (!!size.height) {
+			t.attr('height', size.height).height(size.height);
+		} else {
+			t.removeAttr('height').height('');
+		}
+		if (!!url) {
+			t.attr('src', url);
+		}
 	},
 	
-	_getUrlFromFormat = function (t, o) {
+	_getUrlFromFormat = function (t, o, size) {
 		var 
 		format = t.attr(o.dataAttribute),
 		url = null;
 		if (!!format) {
-			
+			url = format
+					.replace(o.widthPattern, size.width)
+					.replace(o.heightPattern, size.height);
 		}
 		return url;
 	},
 	
 	_update = function (t, o) {
 		var 
-		t = $(element),
 		size = o.size(o),
-		url = _getUrlFromFormat(t, o);
-		o.set(t, size, url);
+		url = _getUrlFromFormat(t, o, size);
+		if (!!url) {
+			o.set(t, size, url);
+		}
 	},
 	
 	resize = function (e) {
@@ -57,10 +74,14 @@
 	},
 	
 	_defaults = {
-		dataAttribute: dataAttribute || 'data-src-format',
-		defaultSelector: defaultSelector || 'img['+dataAttribute+']',
+		container: null,
+		dataAttribute: dataAttribute,
+		defaultSelector: defaultSelector,
 		size: _getSize,
-		set: _set
+		set: _set,
+		widthPattern: /\{w\}/gi,
+		heightPattern: /\{h\}/gi,
+		updateEvents: 'resize'
 	};
 	
 	$.jitImage = {
@@ -84,6 +105,9 @@
 			return _update($(element), o);
 		};
 		
+		// assure container
+		o.container = !!o.container ? $(o.container) : t.parent();
+		
 		// save options
 		t.data(DATA_KEY, o);
 		
@@ -96,7 +120,7 @@
 	// Use data attribute to automatically hook up nodes
 	$(function init() {
 		$(_defaults.defaultSelector).jitImage();
-		win.resize(resize);
+		win.on(_defaults.updateEvents, resize);
 	});
 	
 })(jQuery, window.jitImageSelector, window.jitImageDataAttribute);

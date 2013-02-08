@@ -39,8 +39,12 @@
 	<h2 id="qunit-userAgent"></h2>  
 	<ol id="qunit-tests"></ol>
 	
-	<div id="container"><img /></div>
+	<div id="container"></div>
 	<div id="set"></div>
+	<div id="format" data-format="/{w}/{h}/"></div>
+	<div id="integration">
+		<img data-src-format="http://www.deuxhuithuit.com/image/1/{w}/{h}/assets/img/logo288-accueil-black.png" />
+	</div>
 
 	<script src="../src/jquery.jit-image.js"></script> 
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.js"></script>
@@ -57,9 +61,13 @@
 		
 		set = $('#set'),
 		
+		format = $('#format'),
+		
+		integration = $('#integration>img'),
+		
 		runTests = function  () {
 			
-			module('jQuery.jit-image');
+			module('jQuery.jit-image.unit');
 			
 			test('_getSize', function getSizeTest () {
 				var options = {
@@ -98,10 +106,57 @@
 				equal(set.attr('src'), url, 'attr-src');
 				equal(set.attr('width'), size.width, 'attr-width');
 				equal(set.attr('height'), size.height, 'attr-height');
+				
+				size = {
+					width: 10,
+					height: 0
+				}
+				$.jitImage._set(set, size, url);
+				equal(set.width(), size.width, 'width');
+				equal(set.height(), 0, 'height');
+				equal(set.attr('src'), url, 'attr-src');
+				equal(set.attr('width'), size.width, 'attr-width');
+				equal(set.attr('height'), null, 'attr-height');
 			});
 			
 			test('_getUrlFromFormat', function getUrlFromFormatTest () {
+				var 
+				options = $.extend($.jitImage.defaults, {
+					dataAttribute: 'data-format'
+				}),
+				size = {
+					width: 1,
+					height: 2,
+				};
+				equal($.jitImage._getUrlFromFormat(format, options, size), '/1/2/', 'width and height');
 				
+				size = {
+					width: 1,
+					height: 2,
+				};
+				format.attr(options.dataAttribute, '/{w}/test')
+				equal($.jitImage._getUrlFromFormat(format, options, size), '/1/test', 'width only');
+			});
+			
+			module('jQuery.jit-image.integration');
+			
+			test('$.fn.jitImage', function integrationTest () {
+				var
+				size = {
+					width: 500
+				};
+				
+				ok(integration.attr('src'), 'src attribute');
+				ok(integration.attr('width'), 'width attribute');
+				ok(integration.attr('height'), 'height attribute');
+				
+				integration.parent()
+					.width(500)
+					.height(0);
+					
+				win.trigger('resize');
+				
+				equal(integration.width(), size.width, 'width is now ' + size.width);
 			});
 			
 		}; // end run tests
