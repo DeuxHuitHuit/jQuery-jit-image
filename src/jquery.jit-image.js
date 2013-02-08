@@ -41,7 +41,7 @@
 		} else {
 			t.removeAttr('height').height('');
 		}
-		if (!!url) {
+		if (!!url && t.attr('src') !== url) {
 			t.attr('src', url);
 		}
 	},
