@@ -127,7 +127,7 @@
 	};
 	
 	// Use data attribute to automatically hook up nodes
-	$(function init() {
+	win.load(function init() {
 		$(_defaults.defaultSelector).jitImage();
 		win.on(_defaults.updateEvents, updateOnEvent);
 	});
