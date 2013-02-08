@@ -67,11 +67,18 @@
 		}
 	},
 	
-	resize = function (e) {
+	_updateAll = function () {
 		$.each(instances, function _resize(index, element) {
 			var $el = $(element);
 			_update($el, $el.data(DATA_KEY));
 		});
+	},
+	
+	eventTimer = null,
+	
+	updateOnEvent = function (e) {
+		clearTimeout(eventTimer);
+		setTimeout(_updateAll, _defaults.eventTimeout);
 	},
 	
 	_defaults = {
@@ -82,7 +89,8 @@
 		set: _set,
 		widthPattern: /\$w/gi,
 		heightPattern: /\$h/gi,
-		updateEvents: 'resize'
+		updateEvents: 'resize',
+		eventTimeout: 20
 	};
 	
 	$.jitImage = {
@@ -121,7 +129,7 @@
 	// Use data attribute to automatically hook up nodes
 	$(function init() {
 		$(_defaults.defaultSelector).jitImage();
-		win.on(_defaults.updateEvents, resize);
+		win.on(_defaults.updateEvents, updateOnEvent);
 	});
 	
 })(jQuery, window.jitImageSelector, window.jitImageDataAttribute);

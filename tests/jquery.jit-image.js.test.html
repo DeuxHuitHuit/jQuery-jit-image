@@ -140,7 +140,7 @@
 			
 			module('jQuery.jit-image.integration');
 			
-			test('$.fn.jitImage', function integrationTest () {
+			asyncTest('$.fn.jitImage', function integrationTest () {
 				var
 				size = {
 					width: 500
@@ -156,7 +156,10 @@
 					
 				win.trigger('resize');
 				
-				equal(integration.width(), size.width, 'width is now ' + size.width);
+				setTimeout(function integrationTimer() {
+					start();
+					equal(integration.width(), size.width, 'width is now ' + size.width);
+				}, $.jitImage.defaults.eventTimeout+5);
 			});
 			
 		}; // end run tests
