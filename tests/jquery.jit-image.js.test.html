@@ -1,0 +1,114 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+	<meta charset="utf-8" /> 
+	<title>jQuery JIT image</title> 
+	
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.css" type="text/css"/>
+	
+	<style type="text/css">
+  	</style>
+	
+	<script>
+		(function (w, doc,co) {
+			// http://stackoverflow.com/questions/901115/get-query-string-values-in-javascript
+			var u = {},
+				e,
+				a = /\+/g,  // Regex for replacing addition symbol with a space
+				r = /([^&=]+)=?([^&]*)/g,
+				d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
+				q = w.location.search.substring(1),
+				v = '1';
+			
+			while (e = r.exec(q)) {
+				u[d(e[1])] = d(e[2]);
+			}
+			
+			if (!!u.jquery) {
+				v = u.jquery;
+			}	
+			
+			doc.write('<script src="http://ajax.googleapis.com/ajax/libs/jquery/'+v+'/jquery.min.js">' + "<" + '/' + 'script>');
+			co.log('\nLoading jQuery v' + v + '\n');
+		})(window, document, console);
+	</script>
+</head>
+<body>
+	<h1 id="qunit-header">jQuery JIT image</h1>  
+	<h2 id="qunit-banner"></h2>  
+	<h2 id="qunit-userAgent"></h2>  
+	<ol id="qunit-tests"></ol>
+	
+	<div id="container"><img /></div>
+	<div id="set"></div>
+
+	<script src="../src/jquery.jit-image.js"></script> 
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.js"></script>
+	<script>
+	(function ($, undefined) {
+		
+		"use strict";
+		
+		var
+		
+		win = $(window), 
+		
+		container = $('#container'),
+		
+		set = $('#set'),
+		
+		runTests = function  () {
+			
+			module('jQuery.jit-image');
+			
+			test('_getSize', function getSizeTest () {
+				var options = {
+					container: container
+				},
+				size = {
+					width: 100,
+					height: 100
+				};
+				
+				container.width(size.width).height(size.height);
+				deepEqual($.jitImage._getSize(options), size, '{w:100, h:100}');
+				
+				size = {
+					width: 200,
+					height: 20
+				};
+				container.width(size.width).height(size.height);
+				deepEqual($.jitImage._getSize(options), size, '{w:200, h:20}');
+			});
+			
+			test('_set', function setTest () {
+				var 
+				url = 'data',
+				options = {
+					container: container
+				},
+				size = {
+					width: 100,
+					height: 100
+				}
+				$.jitImage._set(set, size, url);
+				
+				equal(set.width(), size.width, 'width');
+				equal(set.height(), size.height, 'height');
+				equal(set.attr('src'), url, 'attr-src');
+				equal(set.attr('width'), size.width, 'attr-width');
+				equal(set.attr('height'), size.height, 'attr-height');
+			});
+			
+			test('_getUrlFromFormat', function getUrlFromFormatTest () {
+				
+			});
+			
+		}; // end run tests
+		
+		win.load(runTests);
+		
+	})(jQuery);
+	</script>
+</body>
+</html>
