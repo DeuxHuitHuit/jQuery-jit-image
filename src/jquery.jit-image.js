@@ -85,6 +85,7 @@
 		container: null,
 		dataAttribute: dataAttribute,
 		defaultSelector: defaultSelector,
+		containerDataAttribute: 'data-container',
 		size: _getSize,
 		set: _set,
 		widthPattern: /\$w/gi,
@@ -111,11 +112,14 @@
 		_each = function (index, element) {
 			var 
 			o = $.extend({}, _defaults, options),
-			t = $(element);
+			t = $(element),
+			container = t.attr(o.containerDataAttribute);
 			// assure container
 			// do it here since elements may have
 			// different parents
-			o.container = !!o.container ? $(o.container) : t.parent();
+			o.container = !!o.container ? 
+							$(o.container) : 
+							!!container ? : $(container) : t.parent();
 			// save options
 			t.data(DATA_KEY, o);
 			// update attributes
