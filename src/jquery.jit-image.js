@@ -80,8 +80,8 @@
 		defaultSelector: defaultSelector,
 		size: _getSize,
 		set: _set,
-		widthPattern: /$w/gi,
-		heightPattern: /$h/gi,
+		widthPattern: /\$w/gi,
+		heightPattern: /\$h/gi,
 		updateEvents: 'resize'
 	};
 	

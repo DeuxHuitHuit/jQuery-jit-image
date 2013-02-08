@@ -41,9 +41,9 @@
 	
 	<div id="container"></div>
 	<div id="set"></div>
-	<div id="format" data-format="/{w}/{h}/"></div>
+	<div id="format" data-format="/$w/$h/"></div>
 	<div id="integration">
-		<img data-src-format="http://www.deuxhuithuit.com/image/1/{w}/{h}/assets/img/logo288-accueil-black.png" />
+		<img data-src-format="http://www.deuxhuithuit.com/image/1/$w/$h/assets/img/logo288-accueil-black.png" />
 	</div>
 
 	<script src="../src/jquery.jit-image.js"></script> 
@@ -134,7 +134,7 @@
 					width: 1,
 					height: 2,
 				};
-				format.attr(options.dataAttribute, '/{w}/test')
+				format.attr(options.dataAttribute, '/$w/test')
 				equal($.jitImage._getUrlFromFormat(format, options, size), '/1/test', 'width only');
 			});
 			
