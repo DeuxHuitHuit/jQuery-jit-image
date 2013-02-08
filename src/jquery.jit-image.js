@@ -12,6 +12,7 @@
 	// assure param values
 	dataAttribute = dataAttribute || 'data-src-format';
 	defaultSelector = defaultSelector || 'img['+dataAttribute+']';
+	$.fn.on = $.fn.on || $.fn.bind;
 	
 	var
 	
