@@ -7,7 +7,11 @@
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.css" type="text/css"/>
 	
 	<style type="text/css">
-  	</style>
+		#integration {
+			width: 100%;
+			height: 50px;
+		}
+	</style>
 	
 	<script>
 		(function (w, doc,co) {
@@ -159,6 +163,7 @@
 				setTimeout(function integrationTimer() {
 					start();
 					equal(integration.width(), size.width, 'width is now ' + size.width);
+					ok(!integration.attr('height'), 'height attribute has been removed');
 				}, $.jitImage.defaults.eventTimeout+5);
 			});
 			
