@@ -119,7 +119,7 @@
 			// different parents
 			o.container = !!o.container ? 
 							$(o.container) : 
-							!!container ? : $(container) : t.parent();
+							!!container ? $(container) : t.parent();
 			// save options
 			t.data(DATA_KEY, o);
 			// update attributes
