@@ -4,7 +4,7 @@
 
 This jQuery plugin facilitates the use of jit image manipulation on the server and medias queries.
 
-## Usage:
+## Usage
 
 - With the default data attribute `data-src-format`:
 
