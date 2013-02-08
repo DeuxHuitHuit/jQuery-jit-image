@@ -1,0 +1,28 @@
+{
+	"name": "jquery.jit-image",
+	"title": "jQuery JIT image",
+	"description": "This jQuery plugin facilitates the use of jit image manipulation on the server and medias queries",
+	"version": "1.0.0",
+	"homepage": "https://github.com/DeuxHuitHuit/jQuery-jit-image",
+	"author": {
+		"name": "Deux Huit Huit",
+		"url": "http://www.deuxhuithuit.com/"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/DeuxHuitHuit/jit-image.git"
+	},
+	"bugs": {
+		"url": "https://github.com/DeuxHuitHuit/jit-image/issues"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://raw.github.com/DeuxHuitHuit/jit-image/master/LICENSE.txt"
+		}
+	],
+	"dependencies": {
+	"grunt": "~0.3.9"
+	},
+	"keywords": []
+}
