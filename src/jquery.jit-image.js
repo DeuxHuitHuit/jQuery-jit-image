@@ -62,7 +62,7 @@
 		var 
 		size = o.size(o),
 		url = _getUrlFromFormat(t, o, size);
-		if (!!url) {
+		if (!!url && !!size && (size.height > 0 || size.width > 0)) {
 			o.set(t, size, url);
 		}
 	},
