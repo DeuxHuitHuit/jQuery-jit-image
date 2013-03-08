@@ -30,16 +30,18 @@
 	},
 	
 	_set = function (t, size, url) {
-		if (!!size.width) {
-			t.attr('width', size.width).width(size.width);
-		} else {
-			t.removeAttr('width').width('');
-		}
-		
-		if (!!size.height) {
-			t.attr('height', size.height).height(size.height);
-		} else {
-			t.removeAttr('height').height('');
+		if (!!t && !!size) {
+			if (!!size.width) {
+				t.attr('width', size.width).width(size.width);
+			} else {
+				t.removeAttr('width').width('');
+			}
+			
+			if (!!size.height) {
+				t.attr('height', size.height).height(size.height);
+			} else {
+				t.removeAttr('height').height('');
+			}
 		}
 		if (!!url && t.attr('src') !== url) {
 			t.attr('src', url);
@@ -52,8 +54,8 @@
 		url = null;
 		if (!!format) {
 			url = format
-					.replace(o.widthPattern, size.width)
-					.replace(o.heightPattern, size.height);
+					.replace(o.widthPattern, ~~size.width)
+					.replace(o.heightPattern, ~~size.height);
 		}
 		return url;
 	},
