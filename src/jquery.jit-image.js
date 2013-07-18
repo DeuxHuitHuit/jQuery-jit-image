@@ -42,30 +42,42 @@
 			} else {
 				t.removeAttr('height').height('');
 			}
-		}
-		if (!!url && t.attr('src') !== url) {
-			t.attr('src', url);
+			
+			if (!!url && t.attr('src') !== url) {
+				t.attr('src', url);
+			}
 		}
 	},
 	
 	_getUrlFromFormat = function (t, o, size) {
 		var 
 		format = t.attr(o.dataAttribute),
-		url = null;
+		urlFormat = {
+			url: '',
+			height: false,
+			width: false
+		};
 		if (!!format) {
-			url = format
+			urlFormat.width = o.widthPattern.test(format);
+			urlFormat.height = o.heightPattern.test(format);
+			urlFormat.url = format
 					.replace(o.widthPattern, ~~size.width)
 					.replace(o.heightPattern, ~~size.height);
 		}
-		return url;
+		return urlFormat;
 	},
 	
 	_update = function (t, o) {
-		var 
-		size = o.size(o),
-		url = _getUrlFromFormat(t, o, size);
-		if (!!url && !!size && (size.height > 0 || size.width > 0)) {
-			o.set(t, size, url);
+		if (!!o && !!t) {
+			var 
+			size = o.size(o),
+			urlFormat = _getUrlFromFormat(t, o, size);
+			if (!!urlFormat && !!size && (size.height > 0 || size.width > 0)) {
+				// fix for aspect ratio scaling
+				size.width = urlFormat.width ? size.width : false;
+				size.height = urlFormat.height ? size.height : false;
+				o.set(t, size, urlFormat.url);
+			}
 		}
 	},
 	
@@ -74,13 +86,15 @@
 			var $el = $(element);
 			_update($el, $el.data(DATA_KEY));
 		});
+		// re-register event
+		setTimeout(_registerOnce, _defaults.eventTimeout);
 	},
 	
 	eventTimer = null,
 	
 	updateOnEvent = function (e) {
 		clearTimeout(eventTimer);
-		setTimeout(_updateAll, _defaults.eventTimeout);
+		eventTimer = setTimeout(_updateAll, _defaults.eventTimeout);
 	},
 	
 	_defaults = {
@@ -93,7 +107,11 @@
 		widthPattern: /\$w/gi,
 		heightPattern: /\$h/gi,
 		updateEvents: 'resize',
-		eventTimeout: 20
+		eventTimeout: 50
+	},
+	
+	_registerOnce = function () {
+		win.one(_defaults.updateEvents, updateOnEvent);
 	};
 	
 	$.jitImage = {
@@ -138,7 +156,7 @@
 	// Use data attribute to automatically hook up nodes
 	win.load(function init() {
 		$(_defaults.defaultSelector).jitImage();
-		win.on(_defaults.updateEvents, updateOnEvent);
+		_registerOnce();
 	});
 	
 })(jQuery, window.jitImageSelector, window.jitImageDataAttribute);

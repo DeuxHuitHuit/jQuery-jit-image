@@ -131,15 +131,19 @@
 				size = {
 					width: 1,
 					height: 2,
-				};
-				equal($.jitImage._getUrlFromFormat(format, options, size), '/1/2/', 'width and height');
+				},
+				urlFormat = $.jitImage._getUrlFromFormat(format, options, size);
+				equal(urlFormat.url, '/1/2/', 'width and height');
 				
 				size = {
 					width: 1,
 					height: 2,
 				};
-				format.attr(options.dataAttribute, '/$w/test')
-				equal($.jitImage._getUrlFromFormat(format, options, size), '/1/test', 'width only');
+				format.attr(options.dataAttribute, '/$w/test');
+				urlFormat = $.jitImage._getUrlFromFormat(format, options, size);
+				equal(urlFormat.url, '/1/test', 'width only');
+				equal(urlFormat.width, true, 'width only for sure');
+				equal(urlFormat.height, false, 'width only for sure');
 			});
 			
 			module('jQuery.jit-image.integration');
@@ -164,7 +168,7 @@
 					start();
 					equal(integration.width(), size.width, 'width is now ' + size.width);
 					ok(!integration.attr('height'), 'height attribute has been removed');
-				}, $.jitImage.defaults.eventTimeout+5);
+				}, $.jitImage.defaults.eventTimeout+50);
 			});
 			
 		}; // end run tests
