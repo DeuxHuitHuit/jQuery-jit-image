@@ -106,7 +106,7 @@
 		set: _set,
 		widthPattern: /\$w/gi,
 		heightPattern: /\$h/gi,
-		updateEvents: 'resize',
+		updateEvents: 'resize orientationchange',
 		eventTimeout: 50
 	},
 	
