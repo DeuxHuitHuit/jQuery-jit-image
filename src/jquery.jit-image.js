@@ -142,8 +142,9 @@
 							!!container ? t.closest(container) : t.parent();
 			// save options
 			t.data(DATA_KEY, o);
+			
 			// update attributes
-			return _update(t, o);
+			_update(t, o);
 		};
 		
 		// flatten our element array
