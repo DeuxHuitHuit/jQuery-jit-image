@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 	var 
 	serverPort = 8080,
 	server = 'http://localhost:' + serverPort,
-	testFile = server + '/tests/jquery.jit-image.js.test.html?noglobals=true';
+	testFile = server + '/tests/jquery.jit-image.js.test.html?';
 	
 	// Project configuration.
 	grunt.initConfig({
@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 			}
 		},
 		qunit: {
-			files: [testFile, testFile + '&jquery=1.8', testFile + '&jquery=1.7', testFile + '&jquery=1.6']
+			files: [testFile, testFile + '&jquery=1.10.2', testFile + '&jquery=1.9.1', testFile + '&jquery=1.8' ]
 		},
 		lint: {
 			files: ['grunt.js', 'src/jquery.*.js']
