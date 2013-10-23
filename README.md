@@ -35,7 +35,7 @@ Possible options and their default values.
 {
 	container: null,
 	dataAttribute: 'data-src-format',
-	defaultSelector: img[data-src-format]',
+	defaultSelector: 'img[data-src-format]',
 	containerDataAttribute: 'data-container', // reference container, by default, the parent
 	widthPattern: /\$w/gi,
 	heightPattern: /\$h/gi,
