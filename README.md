@@ -15,6 +15,9 @@ By default, the plugin uses the image parent size for reference.
 </div>
 ````
 
+The plugin with automatically call it self on the DOM node with the right data attribute.
+The `container` option call also be set via the `data-container` attribute.
+
 - Manually via script:
 
 ````javascript
@@ -40,7 +43,8 @@ Possible options and their default values.
 	widthPattern: /\$w/gi,
 	heightPattern: /\$h/gi,
 	updateEvents: 'resize orientationchange',
-	eventTimeout: 50
+	eventTimeout: 50,
+	load: function (size) {} // image loaded callback. Raises the 'loaded.jitImage' too.
 }
 ````
 
