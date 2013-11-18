@@ -42,6 +42,7 @@
 	<h2 id="qunit-banner"></h2>  
 	<h2 id="qunit-userAgent"></h2>  
 	<ol id="qunit-tests"></ol>
+	<div id="qunit-fixture"></div>
 	
 	<div id="container"></div>
 	<div id="set"></div>
@@ -125,7 +126,7 @@
 			
 			test('_getUrlFromFormat', function getUrlFromFormatTest () {
 				var 
-				options = $.extend($.jitImage.defaults, {
+				options = $.extend({}, $.jitImage.defaults, {
 					dataAttribute: 'data-format'
 				}),
 				size = {
@@ -144,6 +145,23 @@
 				equal(urlFormat.url, '/1/test', 'width only');
 				equal(urlFormat.width, true, 'width only for sure');
 				equal(urlFormat.height, false, 'width only for sure');
+			});
+			
+			module('jQuery.jit-image.load');
+			
+			asyncTest('$.fn.jitImage.load', function loadTest () {
+				var i = new Image();
+				i.width = 100;
+				i.height = 100;
+				$('#qunit-fixture').append(i);
+				$(i).attr('data-src-format', 'http://www.deuxhuithuit.com/image/1/100/100/assets/img/logo288-accueil-black.png');
+				
+				$(i).jitImage({
+					load: function (e, size) {
+						start();
+						ok($(this).is(i));
+					}
+				});
 			});
 			
 			module('jQuery.jit-image.integration');

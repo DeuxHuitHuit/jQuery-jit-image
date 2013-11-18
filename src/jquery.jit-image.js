@@ -1,5 +1,5 @@
 /*
- *  jQuery JIT image v1.0 - jQuery plugin
+ *  jQuery JIT image v1.1 - jQuery plugin
  *
  *  Copyright (c) 2013 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
@@ -29,7 +29,7 @@
 		};
 	},
 	
-	_set = function (t, size, url) {
+	_set = function (t, size, url, callback) {
 		if (!!t && !!size) {
 			if (!!size.width) {
 				t.attr('width', size.width).width(size.width);
@@ -44,6 +44,14 @@
 			}
 			
 			if (!!url && t.attr('src') !== url) {
+				// register for load
+				t.one('load', function () {
+					if ($.isFunction(callback)) {
+						callback.call(this, size);
+					}
+					t.trigger('loaded.jitImage', [size]);
+				});
+				// load it
 				t.attr('src', url);
 			}
 		}
@@ -53,7 +61,7 @@
 		var 
 		format = t.attr(o.dataAttribute),
 		urlFormat = {
-			url: '',
+			url: format,
 			height: false,
 			width: false
 		};
@@ -76,7 +84,7 @@
 				// fix for aspect ratio scaling
 				size.width = urlFormat.width ? size.width : false;
 				size.height = urlFormat.height ? size.height : false;
-				o.set(t, size, urlFormat.url);
+				o.set(t, size, urlFormat.url, o.load);
 			}
 		}
 	},
@@ -107,7 +115,8 @@
 		widthPattern: /\$w/gi,
 		heightPattern: /\$h/gi,
 		updateEvents: 'resize orientationchange',
-		eventTimeout: 50
+		eventTimeout: 50,
+		load: $.noop
 	},
 	
 	_registerOnce = function () {
@@ -139,7 +148,7 @@
 			// different parents
 			o.container = !!o.container ? 
 							$(o.container) : 
-							!!container ? t.closest(container) : t.parent();
+							!!container ? t.closest(container) : (!t.parent().length ? t : t.parent()) ;
 			// save options
 			t.data(DATA_KEY, o);
 			

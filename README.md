@@ -1,6 +1,6 @@
 # jQuery JIT image
 
-#### Version 1.0
+#### Version 1.1
 
 This jQuery plugin facilitates the use of jit image manipulation on the server with medias queries.
 By default, the plugin uses the image parent size for reference.
