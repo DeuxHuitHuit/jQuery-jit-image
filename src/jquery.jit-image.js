@@ -92,7 +92,23 @@
 	_updateAll = function () {
 		$.each(instances, function _resize(index, element) {
 			var $el = $(element);
-			_update($el, $el.data(DATA_KEY));
+			var data = $el.data(DATA_KEY);
+			var update = function () {
+				_update($el, $el.data(DATA_KEY));
+			};
+			
+			if (!data) {
+				return;
+			}
+			
+			// cancel any pending timeouts
+			clearTimeout(data.jitTimeout);
+			
+			if (!!_defaults.nonVisibleDelay && !$el.is(':visible')) {
+				data.jitTimeout = setTimeout(update, _defaults.nonVisibleDelay);
+			} else {
+				update();
+			}
 		});
 		// re-register event
 		setTimeout(_registerOnce, _defaults.eventTimeout);
@@ -116,7 +132,8 @@
 		heightPattern: /\$h/gi,
 		updateEvents: 'resize orientationchange',
 		eventTimeout: 50,
-		load: $.noop
+		load: $.noop,
+		nonVisibleDelay: 1000
 	},
 	
 	_registerOnce = function () {

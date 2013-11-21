@@ -44,7 +44,8 @@ Possible options and their default values.
 	heightPattern: /\$h/gi,
 	updateEvents: 'resize orientationchange',
 	eventTimeout: 50,
-	load: function (size) {} // image loaded callback. Raises the 'loaded.jitImage' too.
+	load: function (size) {}, // image loaded callback. Raises the 'loaded.jitImage' too.
+	nonVisibleDelay: 1000  // delay resizing of non-visible images
 }
 ````
 
