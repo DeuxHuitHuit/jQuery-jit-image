@@ -45,7 +45,8 @@ Possible options and their default values.
 	updateEvents: 'resize orientationchange',
 	eventTimeout: 50,
 	load: function (size) {}, // image loaded callback. Raises the 'loaded.jitImage' too.
-	nonVisibleDelay: 1000  // delay resizing of non-visible images
+	nonVisibleDelay: 1000,  // delay resizing of non-visible images
+	forceCssResize: true
 }
 ````
 
