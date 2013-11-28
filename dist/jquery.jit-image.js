@@ -1,4 +1,4 @@
-/*! jQuery JIT image - v1.1.0 - 2013-11-20\n* https://github.com/DeuxHuitHuit/jQuery-jit-image
+/*! jQuery JIT image - v1.1.0 - 2013-11-28\n* https://github.com/DeuxHuitHuit/jQuery-jit-image
 * Copyright (c) 2013 Deux Huit Huit Licensed MIT *//*
  *  jQuery JIT image v1.1 - jQuery plugin
  *
@@ -30,15 +30,15 @@
 		};
 	},
 	
-	_set = function (t, size, url, callback) {
+	_set = function (t, size, url, forceCssResize, callback) {
 		if (!!t && !!size) {
-			if (!!size.width) {
+			if (!!forceCssResize && !!size.width) {
 				t.attr('width', size.width).width(size.width);
 			} else {
 				t.removeAttr('width').width('');
 			}
 			
-			if (!!size.height) {
+			if (!!forceCssResize && !!size.height) {
 				t.attr('height', size.height).height(size.height);
 			} else {
 				t.removeAttr('height').height('');
@@ -85,7 +85,7 @@
 				// fix for aspect ratio scaling
 				size.width = urlFormat.width ? size.width : false;
 				size.height = urlFormat.height ? size.height : false;
-				o.set(t, size, urlFormat.url, o.load);
+				o.set(t, size, urlFormat.url, o.forceCssResize, o.load);
 			}
 		}
 	},
@@ -134,7 +134,8 @@
 		updateEvents: 'resize orientationchange',
 		eventTimeout: 50,
 		load: $.noop,
-		nonVisibleDelay: 1000
+		nonVisibleDelay: 1000,
+		forceCssResize: true
 	},
 	
 	_registerOnce = function () {
