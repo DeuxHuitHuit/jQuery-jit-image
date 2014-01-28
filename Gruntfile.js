@@ -37,7 +37,7 @@ module.exports = function (grunt) {
 			},
 			dist: {
 				src: SRC_FILES,
-				dest: 'js/<%= pkg.name %>.js'
+				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
 		qunit: {
@@ -189,11 +189,11 @@ module.exports = function (grunt) {
 			var sourceMap = grunt.file.readJSON(sourceMapPath);
 			sourceMap.file = sourceMap.file.replace(diff, '');
 			var newSources = [];
-			sourceMap.SRC_FILES.forEach(function (elem) {
+			sourceMap.sources.forEach(function (elem) {
 				newSources.push(elem.replace(diff, ''));
 			});
-			sourceMap.SRC_FILES = newSources;
-			grunt.log.write(sourceMap.SRC_FILES);
+			sourceMap.sources = newSources;
+			grunt.log.write(sourceMap.sources);
 			grunt.file.write(sourceMapPath, JSON.stringify(sourceMap));
 		});
 		
