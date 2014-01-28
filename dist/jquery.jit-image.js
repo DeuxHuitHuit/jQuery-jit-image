@@ -1,36 +1,84 @@
-/*! jQuery JIT image - v1.1.0 - 2013-11-28\n* https://github.com/DeuxHuitHuit/jQuery-jit-image
-* Copyright (c) 2013 Deux Huit Huit Licensed MIT *//*
+/*! jQuery JIT image - v1.1.0 - build 4 - 2014-01-28
+* https://github.com/DeuxHuitHuit/jQuery-jit-image
+* Copyright (c) 2014 Deux Huit Huit (http://www.deuxhuithuit.com/);
+* Licensed MIT */
+/*
  *  jQuery JIT image v1.1 - jQuery plugin
  *
- *  Copyright (c) 2013 Deux Huit Huit (http://www.deuxhuithuit.com/)
+ *  Copyright (c) 2013-2014 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
  *  (https://raw.github.com/DeuxHuitHuit/jQuery-jit-image/master/LICENSE.txt)
  */
 (function ($, defaultSelector, dataAttribute, undefined) {
 	
-	"use strict";
+	'use strict';
 	
 	// assure param values
 	dataAttribute = dataAttribute || 'data-src-format';
-	defaultSelector = defaultSelector || 'img['+dataAttribute+']';
+	defaultSelector = defaultSelector || 'img[' + dataAttribute + ']';
 	$.fn.on = $.fn.on || $.fn.bind;
+	$.fn.off = $.fn.off || $.fn.unbind;
 	
-	var
+	var win = $(window);
 	
-	win = $(window),
+	var instances = $();
 	
-	instances = $(),
+	var DATA_KEY = 'jitImageOptions';
 	
-	DATA_KEY = 'jitImageOptions',
+	var loader = (function createLoader() {
+		var queue = [];
+		var active = 0;
+		
+		var checkTimeout = 0;
+		
+		var processQueue = function () {
+			while (!!queue.length && active < queue[0].limit) {
+				var cur = queue.shift();
+				active++;
+				cur.update();	
+			}
+			checkTimeout = 0;
+		};
+		
+		var checkQueue = function () {
+			if (!checkTimeout) {
+				checkTimeout = setTimeout(processQueue, 0);
+			}
+		};
+		
+		var push = function (job) {
+			queue.push(job);
+			checkQueue();
+		};
+		
+		var done = function (elem, args) {
+			if (active > 0) {
+				active--;
+				checkQueue();
+			}
+		};
+		
+		return {
+			push: push,
+			done: done,
+			count: function () {
+				return queue.length;
+			},
+			active: function () {
+				return active;
+			}
+		};
+	})();
 	
-	_getSize = function (o) {
+	var _getSize = function (o) {
 		return {
 			width: o.container.width(),
 			height: o.container.height()
 		};
-	},
+	};
 	
-	_set = function (t, size, url, forceCssResize, callback) {
+	/*jshint maxparams:6 */
+	var _set = function (t, size, url, forceCssResize, callback, parallelLoadingLimit) {
 		if (!!t && !!size) {
 			if (!!forceCssResize && !!size.width) {
 				t.attr('width', size.width).width(size.width);
@@ -44,24 +92,34 @@
 				t.removeAttr('height').height('');
 			}
 			
+			var callbackCreator = function (err) {
+				return function (e) {
+					var args = [size, e, err];
+					if (!!parallelLoadingLimit) {
+						loader.done(t, args);
+					}
+					if ($.isFunction(callback)) {
+						callback.apply(t, args);
+					}
+					t.trigger('loaded.jitImage', args);
+				};
+			};
+			
 			if (!!url && t.attr('src') !== url) {
 				// register for load
-				t.one('load', function () {
-					if ($.isFunction(callback)) {
-						callback.call(this, size);
-					}
-					t.trigger('loaded.jitImage', [size]);
-				});
+				t.off('load.jitImage')
+					.off('error.jitImage')
+					.one('load.jitImage', callbackCreator(false))
+					.one('error.jitImage', callbackCreator(true));
 				// load it
 				t.attr('src', url);
 			}
 		}
-	},
+	};
 	
-	_getUrlFromFormat = function (t, o, size) {
-		var 
-		format = t.attr(o.dataAttribute),
-		urlFormat = {
+	var _getUrlFromFormat = function (t, o, size) {
+		var format = t.attr(o.dataAttribute);
+		var urlFormat = {
 			url: format,
 			height: false,
 			width: false
@@ -74,26 +132,28 @@
 					.replace(o.heightPattern, ~~size.height);
 		}
 		return urlFormat;
-	},
+	};
 	
-	_update = function (t, o) {
+	var _update = function (t, o) {
 		if (!!o && !!t) {
-			var 
-			size = o.size(o),
-			urlFormat = _getUrlFromFormat(t, o, size);
+			var size = o.size(o);
+			var urlFormat = _getUrlFromFormat(t, o, size);
+			
 			if (!!urlFormat && !!size && (size.height > 0 || size.width > 0)) {
 				// fix for aspect ratio scaling
-				size.width = urlFormat.width ? size.width : false;
-				size.height = urlFormat.height ? size.height : false;
-				o.set(t, size, urlFormat.url, o.forceCssResize, o.load);
+				size.width = !!urlFormat.width ? size.width : false;
+				size.height = !!urlFormat.height ? size.height : false;
+				// set the image's url and css
+				o.set(t, size, urlFormat.url, o.forceCssResize, o.load, o.parallelLoadingLimit);
 			}
 		}
-	},
+	};
 	
-	_updateAll = function () {
+	var _updateAll = function () {
 		$.each(instances, function _resize(index, element) {
 			var $el = $(element);
 			var data = $el.data(DATA_KEY);
+			var visible = $el.is(':visible');
 			var update = function () {
 				_update($el, $el.data(DATA_KEY));
 			};
@@ -102,27 +162,40 @@
 				return;
 			}
 			
-			// cancel any pending timeouts
-			clearTimeout(data.jitTimeout);
-			
-			if (!!_defaults.nonVisibleDelay && !$el.is(':visible')) {
-				data.jitTimeout = setTimeout(update, _defaults.nonVisibleDelay);
-			} else {
-				update();
+			// No limit
+			if (!data.parallelLoadingLimit) {
+				// cancel any pending timeouts
+				clearTimeout(data.jitTimeout);
+				
+				if (!!_defaults.nonVisibleDelay && !visible) {
+					data.jitTimeout = setTimeout(update, _defaults.nonVisibleDelay);
+				} else {
+					update();
+				}
+			}
+			// Limit concurents image loading
+			else {
+				loader.push({
+					elem: $el,
+					visible: visible,
+					update: update,
+					limit: data.parallelLoadingLimit
+				});
 			}
 		});
 		// re-register event
-		setTimeout(_registerOnce, _defaults.eventTimeout);
-	},
+		//setTimeout(_registerOnce, _defaults.eventTimeout);
+		_registerOnce();
+	};
 	
-	eventTimer = null,
+	var eventTimer = null;
 	
-	updateOnEvent = function (e) {
+	var updateOnEvent = function (e) {
 		clearTimeout(eventTimer);
 		eventTimer = setTimeout(_updateAll, _defaults.eventTimeout);
-	},
+	};
 	
-	_defaults = {
+	var _defaults = {
 		container: null,
 		dataAttribute: dataAttribute,
 		defaultSelector: defaultSelector,
@@ -135,10 +208,11 @@
 		eventTimeout: 50,
 		load: $.noop,
 		nonVisibleDelay: 1000,
-		forceCssResize: true
-	},
+		forceCssResize: true,
+		parallelLoadingLimit: 0
+	};
 	
-	_registerOnce = function () {
+	var _registerOnce = function () {
 		win.one(_defaults.updateEvents, updateOnEvent);
 	};
 	
@@ -153,26 +227,42 @@
 	};
 	
 	$.fn.jitImage = function (options) {
-		var
+		var t = $(this);
 		
-		t = $(this),
-		
-		_each = function (index, element) {
-			var 
-			o = $.extend({}, _defaults, options),
-			t = $(element),
-			container = t.attr(o.containerDataAttribute);
-			// assure container
+		var _each = function (index, element) {
+			var o = $.extend({}, _defaults, options);
+			var t = $(element);
+			var container = t.attr(o.containerDataAttribute);
+			var parentContainer = !!container ? 
+					t.closest(container) : 
+					!t.parent().length ? t : t.parent();
+					
+			// insure container
 			// do it here since elements may have
 			// different parents
-			o.container = !!o.container ? 
-							$(o.container) : 
-							!!container ? t.closest(container) : (!t.parent().length ? t : t.parent()) ;
+			o.container = !!o.container ? $(o.container) : parentContainer;
+							
 			// save options
 			t.data(DATA_KEY, o);
 			
-			// update attributes
-			_update(t, o);
+			var update = function () {
+				_update(t, o);	
+			};
+			
+			// No limit
+			if (!o.parallelLoadingLimit) {
+				// update attributes
+				update();
+			}
+			// Limit concurents image loading
+			else {
+				loader.push({
+					elem: t,
+					visible: true,
+					update: update,
+					limit: o.parallelLoadingLimit
+				});
+			}
 		};
 		
 		// flatten our element array
@@ -184,7 +274,9 @@
 	
 	// Use data attribute to automatically hook up nodes
 	win.load(function init() {
-		$(_defaults.defaultSelector).jitImage();
+		if (!!_defaults.defaultSelector) {
+			$(_defaults.defaultSelector).jitImage();
+		}
 		_registerOnce();
 	});
 	
