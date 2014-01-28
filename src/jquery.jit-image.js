@@ -11,7 +11,7 @@
 	
 	// assure param values
 	dataAttribute = dataAttribute || 'data-src-format';
-	defaultSelector = defaultSelector || 'img['+dataAttribute+']';
+	defaultSelector = defaultSelector || 'img[' + dataAttribute + ']';
 	$.fn.on = $.fn.on || $.fn.bind;
 	$.fn.off = $.fn.off || $.fn.unbind;
 	
@@ -39,8 +39,8 @@
 		var checkQueue = function () {
 			if (!checkTimeout) {
 				checkTimeout = setTimeout(processQueue, 0);
-			}	
-		}
+			}
+		};
 		
 		var push = function (job) {
 			queue.push(job);
@@ -73,6 +73,7 @@
 		};
 	};
 	
+	/*jshint maxparams:6 */
 	var _set = function (t, size, url, forceCssResize, callback, parallelLoadingLimit) {
 		if (!!t && !!size) {
 			if (!!forceCssResize && !!size.width) {
@@ -228,12 +229,15 @@
 			var o = $.extend({}, _defaults, options);
 			var t = $(element);
 			var container = t.attr(o.containerDataAttribute);
-			// assure container
+			var parentContainer = !!container ? 
+					t.closest(container) : 
+					!t.parent().length ? t : t.parent();
+					
+			// insure container
 			// do it here since elements may have
 			// different parents
-			o.container = !!o.container ? 
-							$(o.container) : 
-							!!container ? t.closest(container) : (!t.parent().length ? t : t.parent()) ;
+			o.container = !!o.container ? $(o.container) : parentContainer;
+							
 			// save options
 			t.data(DATA_KEY, o);
 			

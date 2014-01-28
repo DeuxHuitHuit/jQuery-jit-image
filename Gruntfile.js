@@ -2,45 +2,33 @@
 
 var md = require('matchdep');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
-	"use strict";
+	'use strict';
 	
 	var serverPort = 8080;
 	var server = 'http://localhost:' + serverPort;
-	var sources = ['src/jquery.jit-image.js'];
-	var testFile = server + '/tests/jquery.jit-image.js.test.html?';
-	var gruntfile = 'Gruntfile.js';
-	
-	md.filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+	var SRC_FILES = ['src/jquery.jit-image.js'];
+	var TEST_FILES = server + '/tests/jquery.jit-image.js.test.html?';
+	var GRUNT_FILE = 'Gruntfile.js';
+	var BUILD_FILE = './build.json';
 	
 	// Project configuration.
-	grunt.initConfig({
+	var config = {
 		pkg: grunt.file.readJSON('package.json'),
+		buildnum: {
+			options: {
+				file: BUILD_FILE
+			}
+		},
 		meta: {
-			banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
-			'<%= grunt.template.today("yyyy-mm-dd") %>\\n' +
+			banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> ' +
+			'- build <%= buildnum.num %> - ' +
+			'<%= grunt.template.today("yyyy-mm-dd") %>\n' +
 			'<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-			'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>' +
-			' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
-		},
-		min: {
-			dist: {
-			src: ['<banner:meta.banner>', 'src/jquery.*.js'],
-				dest: 'dist/<%= pkg.name %>.min.js'
-			}
-		},
-		qunit: {
-			all: {
-				options: {
-					urls: [testFile, testFile + '&jquery=1.10.2', testFile + '&jquery=1.9.1', testFile + '&jquery=1.8' ]
-				}
-			}
-		},
-		
-		watch: {
-			files: sources.concat(gruntfile),
-			tasks: ['dev']
+			'* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
+			'<%= pkg.author.name %> (<%= pkg.author.url %>);\n' +
+			'* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n'
 		},
 		concat: {
 			options: {
@@ -48,34 +36,72 @@ module.exports = function(grunt) {
 				banner: '<%= meta.banner %>'
 			},
 			dist: {
-				src: sources,
-				dest: 'dist/<%= pkg.name %>.js'
+				src: SRC_FILES,
+				dest: 'js/<%= pkg.name %>.js'
 			}
 		},
+		qunit: {
+			all: {
+				options: {
+					urls: [
+						TEST_FILES,
+						TEST_FILES + '&jquery=1.10.2',
+						TEST_FILES + '&jquery=1.9.1', 
+						TEST_FILES + '&jquery=1.8'
+					]
+				}
+			}
+		},
+		
+		watch: {
+			files: SRC_FILES.concat(GRUNT_FILE),
+			tasks: ['dev']
+		},
+		
 		jshint: {
-			files: sources.concat(gruntfile),
+			files: SRC_FILES.concat(GRUNT_FILE),
 			options: {
+				bitwise: false,
+				camelcase: false,
 				curly: true,
 				eqeqeq: false, // allow ==
+				forin: true,
+				//freeze: true,
 				immed: false, //
-				latedef: false, // late definition
-				newcap: false, // capitalize ctos
+				latedef: true, // late definition
+				newcap: true, // capitalize ctos
+				noempty: true,
 				nonew: true, // no new ..()
 				noarg: true, 
-				sub: true,
+				plusplus: false,
+				quotmark: 'single',
 				undef: true,
+				maxparams: 5,
+				maxdepth: 5,
+				maxstatements: 30,
+				maxlen: 100,
+				//maxcomplexity: 10,
+				
+				// relax options
 				//boss: true,
-				eqnull: true, // relax
-				browser: true,
+				//eqnull: true, 
+				esnext: true,
 				regexp: true,
 				strict: true,
 				trailing: false,
+				sub: true, // [] notation
 				smarttabs: true,
-				lastsemic: true,
+				lastsemic: false, // enforce semicolons
+				white: true,
+				
+				// env
+				browser: true,
+				
 				globals: {
-					console: true,
 					jQuery: true,
-					DEBUG: true,
+					console: true,
+					App: true,
+					Loader: true
 				}
 			}
 		},
@@ -111,7 +137,7 @@ module.exports = function(grunt) {
 		
 		complexity: {
 			generic: {
-				src: sources,
+				src: SRC_FILES,
 				options: {
 					//jsLintXML: 'report.xml', // create XML JSLint-like report
 					errorsOnly: false, // show only maintainability errors
@@ -121,28 +147,68 @@ module.exports = function(grunt) {
 				}
 			}
 		}
-	});
+	};
 	
-	// fix source map url
-	grunt.registerTask('fix-source-map', 'Fix the wrong file path in the source map', function() {
-		var sourceMapPath = grunt.template.process('<%= uglify.options.sourceMap %>');
-		var sourceMapUrl = grunt.template.process('<%= uglify.options.sourceMappingURL %>');
-		var diff = sourceMapPath.replace(sourceMapUrl, '');
-		var sourceMap = grunt.file.readJSON(sourceMapPath);
-		sourceMap.file = sourceMap.file.replace(diff, '');
-		var newSources = [];
-		sourceMap.sources.forEach(function (elem) {
-			newSources.push(elem.replace(diff, ''));
-		});
-		sourceMap.sources = newSources;
-		grunt.log.write(sourceMap.sources);
-		grunt.file.write(sourceMapPath, JSON.stringify(sourceMap));
-	});
-	
-	// Default task.
-	grunt.registerTask('dev', ['jshint','complexity']);
-	grunt.registerTask('build', ['concat','uglify', 'fix-source-map']);
-	grunt.registerTask('test', ['connect','qunit']);
-	grunt.registerTask('default', ['dev','test','build']);
+	var init = function (grunt) {
+		grunt.file.preserveBOM = true;
+		
+		// Project configuration.
+		grunt.initConfig(config);
+		
+		// generate build number
+		grunt.registerTask('buildnum', 
+			'Generates and updates the current build number', function () {
+			var options = this.options();
+			var getBuildNumber = function () {
+				var b = {};
+				
+				try {
+					b = grunt.file.readJSON(options.file);
+				} catch (e) {}
+				
+				b.lastBuild = b.lastBuild > 0 ? b.lastBuild + 1 : 1;
+				
+				grunt.file.write(options.file, JSON.stringify(b));
+				
+				return b.lastBuild;
+			};
 
+			var buildnum = getBuildNumber();
+			grunt.log.writeln('New build num: ', buildnum);
+			grunt.config.set('buildnum.num', buildnum);
+		});
+		
+		// fix source map url
+		grunt.registerTask(
+				'fix-source-map', 
+				'Fix the wrong file path in the source map',
+				function () {
+			var sourceMapPath = grunt.template.process('<%= uglify.options.sourceMap %>');
+			var sourceMapUrl = grunt.template.process('<%= uglify.options.sourceMappingURL %>');
+			var diff = sourceMapPath.replace(sourceMapUrl, '');
+			var sourceMap = grunt.file.readJSON(sourceMapPath);
+			sourceMap.file = sourceMap.file.replace(diff, '');
+			var newSources = [];
+			sourceMap.SRC_FILES.forEach(function (elem) {
+				newSources.push(elem.replace(diff, ''));
+			});
+			sourceMap.SRC_FILES = newSources;
+			grunt.log.write(sourceMap.SRC_FILES);
+			grunt.file.write(sourceMapPath, JSON.stringify(sourceMap));
+		});
+		
+		// Default task.
+		grunt.registerTask('dev',     ['jshint', 'complexity']);
+		grunt.registerTask('build',   ['buildnum', 'concat', 'uglify', 'fix-source-map']);
+		grunt.registerTask('test',    ['connect', 'qunit']);
+		grunt.registerTask('default', ['dev', 'test', 'build']);
+	};
+	
+	var load = function (grunt) {
+		md.filterDev('grunt-*').forEach(grunt.loadNpmTasks);
+		
+		init(grunt);
+	};
+	
+	load(grunt);
 };
