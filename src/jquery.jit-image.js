@@ -13,12 +13,58 @@
 	dataAttribute = dataAttribute || 'data-src-format';
 	defaultSelector = defaultSelector || 'img['+dataAttribute+']';
 	$.fn.on = $.fn.on || $.fn.bind;
+	$.fn.off = $.fn.off || $.fn.unbind;
 	
 	var win = $(window);
 	
 	var instances = $();
 	
 	var DATA_KEY = 'jitImageOptions';
+	
+	var loader = (function createLoader() {
+		var queue = [];
+		var active = 0;
+		
+		var checkTimeout = 0;
+		
+		var processQueue = function () {
+			while (!!queue.length && active < queue[0].limit) {
+				var cur = queue.shift();
+				active++;
+				cur.update();	
+			}
+			checkTimeout = 0;
+		};
+		
+		var checkQueue = function () {
+			if (!checkTimeout) {
+				checkTimeout = setTimeout(processQueue, 0);
+			}	
+		}
+		
+		var push = function (job) {
+			queue.push(job);
+			checkQueue();
+		};
+		
+		var done = function (elem, args) {
+			if (active > 0) {
+				active--;
+				checkQueue();
+			}
+		};
+		
+		return {
+			push: push,
+			done: done,
+			count: function () {
+				return queue.length;
+			},
+			active: function () {
+				return active;
+			}
+		};
+	})();
 	
 	var _getSize = function (o) {
 		return {
@@ -27,7 +73,7 @@
 		};
 	};
 	
-	var _set = function (t, size, url, forceCssResize, callback) {
+	var _set = function (t, size, url, forceCssResize, callback, parallelLoadingLimit) {
 		if (!!t && !!size) {
 			if (!!forceCssResize && !!size.width) {
 				t.attr('width', size.width).width(size.width);
@@ -41,14 +87,25 @@
 				t.removeAttr('height').height('');
 			}
 			
+			var callbackCreator = function (err) {
+				return function (e) {
+					var args = [size, e, err];
+					if (!!parallelLoadingLimit) {
+						loader.done(t, args);
+					}
+					if ($.isFunction(callback)) {
+						callback.apply(t, args);
+					}
+					t.trigger('loaded.jitImage', args);
+				};
+			};
+			
 			if (!!url && t.attr('src') !== url) {
 				// register for load
-				t.one('load', function () {
-					if ($.isFunction(callback)) {
-						callback.call(this, size);
-					}
-					t.trigger('loaded.jitImage', [size]);
-				});
+				t.off('load.jitImage')
+					.off('error.jitImage')
+					.one('load.jitImage', callbackCreator(false))
+					.one('error.jitImage', callbackCreator(true));
 				// load it
 				t.attr('src', url);
 			}
@@ -82,7 +139,7 @@
 				size.width = !!urlFormat.width ? size.width : false;
 				size.height = !!urlFormat.height ? size.height : false;
 				// set the image's url and css
-				o.set(t, size, urlFormat.url, o.forceCssResize, o.load);
+				o.set(t, size, urlFormat.url, o.forceCssResize, o.load, o.parallelLoadingLimit);
 			}
 		}
 	};
@@ -91,6 +148,7 @@
 		$.each(instances, function _resize(index, element) {
 			var $el = $(element);
 			var data = $el.data(DATA_KEY);
+			var visible = $el.is(':visible');
 			var update = function () {
 				_update($el, $el.data(DATA_KEY));
 			};
@@ -99,13 +157,25 @@
 				return;
 			}
 			
-			// cancel any pending timeouts
-			clearTimeout(data.jitTimeout);
-			
-			if (!!_defaults.nonVisibleDelay && !$el.is(':visible')) {
-				data.jitTimeout = setTimeout(update, _defaults.nonVisibleDelay);
-			} else {
-				update();
+			// No limit
+			if (!data.parallelLoadingLimit) {
+				// cancel any pending timeouts
+				clearTimeout(data.jitTimeout);
+				
+				if (!!_defaults.nonVisibleDelay && !visible) {
+					data.jitTimeout = setTimeout(update, _defaults.nonVisibleDelay);
+				} else {
+					update();
+				}
+			}
+			// Limit concurents image loading
+			else {
+				loader.push({
+					elem: $el,
+					visible: visible,
+					update: update,
+					limit: data.parallelLoadingLimit
+				});
 			}
 		});
 		// re-register event
@@ -133,7 +203,8 @@
 		eventTimeout: 50,
 		load: $.noop,
 		nonVisibleDelay: 1000,
-		forceCssResize: true
+		forceCssResize: true,
+		parallelLoadingLimit: 0
 	};
 	
 	var _registerOnce = function () {
@@ -181,8 +252,8 @@
 	win.load(function init() {
 		if (!!_defaults.defaultSelector) {
 			$(_defaults.defaultSelector).jitImage();
-			_registerOnce();
 		}
+		_registerOnce();
 	});
 	
 })(jQuery, window.jitImageSelector, window.jitImageDataAttribute);

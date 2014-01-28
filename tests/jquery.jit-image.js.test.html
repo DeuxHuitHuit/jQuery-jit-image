@@ -11,6 +11,11 @@
 			width: 100%;
 			height: 50px;
 		}
+		
+		#parallel {
+			width: 500px;
+			height: 300px;	
+		}
 	</style>
 	
 	<script>
@@ -66,6 +71,16 @@
 		var format = $('#format');
 		var integration = $('#integration>img');
 		var parallel = $('#parallel');
+		
+		var randomSize = function () {
+			var height = ~~((Math.random() * 10000) % 100) + 250;
+			var width = ~~((Math.random() * 10000) % 100) + 500;
+			
+			return {
+				width: width,
+				height: height	
+			};
+		};
 		
 		var runTests = function  () {
 			
@@ -154,7 +169,7 @@
 				$(i).attr('data-src-format', 'http://www.deuxhuithuit.com/image/1/100/100/assets/img/logo288-accueil-black.png');
 				
 				$(i).jitImage({
-					load: function (e, size) {
+					load: function (size, e, err) {
 						start();
 						ok($(this).is(i));
 					}
@@ -186,17 +201,41 @@
 				}, $.jitImage.defaults.eventTimeout+50);
 			});
 			
+			
+			module('jQuery.jit-image.parallel');
+			
+			asyncTest('$.fn.jitImage.parallel', function parallelTest () {
+				var count = 0;
+				var total = 10;
+				
+				for (var x = 0; x < total; x++) {
+					var size = randomSize();
+					var img = $('<img />')
+						.width(size.width)
+						.height(size.height)
+						.attr('data-src-format', 'http://placehold.it/$w/$h')
+						.attr('src', 'http://placehold.it/' + size.width + '/' + size.height);
+					parallel.append(img);
+				}
+				
+				parallel.find('>img').jitImage({
+					parallelLoadingLimit: 2,
+					load: function (size, e, err) {
+						count++;
+						var nsize = randomSize();
+						parallel.width(nsize.width).height(nsize.height);
+						//if (count <= total) {
+							ok(!err);
+						//}
+						
+						if (count == total) {
+							start();
+						}
+					}
+				});
+			});
+			
 		}; // end run tests
-		
-		for (var x = 0; x < 10; x++) {
-			var height = ~~((Math.random() * 10000) % 100) + 250;
-			var width = ~~((Math.random() * 10000) % 100) + 500;
-			var img = $('<img />')
-				.width(width)
-				.height(height)
-				.attr('src', 'http://placehold.it/' + width + '/' + height);
-			parallel.append(img);
-		}
 		
 		win.load(runTests);
 		
