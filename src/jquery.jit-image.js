@@ -108,7 +108,8 @@
 			}
 		});
 		// re-register event
-		setTimeout(_registerOnce, _defaults.eventTimeout);
+		//setTimeout(_registerOnce, _defaults.eventTimeout);
+		_registerOnce();
 	};
 	
 	var eventTimer = null;
