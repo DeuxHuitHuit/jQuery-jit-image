@@ -130,8 +130,10 @@ module.exports = function (grunt) {
 		
 		connect: {
 			server: {
-				port: serverPort,
-				base: '.'
+				options: {
+					port: serverPort,
+					base: '.'
+				}
 			}
 		},
 		
