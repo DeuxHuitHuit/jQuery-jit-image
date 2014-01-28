@@ -237,8 +237,24 @@
 			// save options
 			t.data(DATA_KEY, o);
 			
-			// update attributes
-			_update(t, o);
+			var update = function () {
+				_update(t, o);	
+			};
+			
+			// No limit
+			if (!o.parallelLoadingLimit) {
+				// update attributes
+				update();
+			}
+			// Limit concurents image loading
+			else {
+				loader.push({
+					elem: t,
+					visible: true,
+					update: update,
+					limit: o.parallelLoadingLimit
+				});
+			}
 		};
 		
 		// flatten our element array

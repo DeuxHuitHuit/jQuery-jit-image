@@ -73,8 +73,8 @@
 		var parallel = $('#parallel');
 		
 		var randomSize = function () {
-			var height = ~~((Math.random() * 10000) % 100) + 250;
-			var width = ~~((Math.random() * 10000) % 100) + 500;
+			var height = ~~((Math.random() * 1000000) % 200) + 350;
+			var width = ~~((Math.random() * 1000000) % 300) + 600;
 			
 			return {
 				width: width,
@@ -213,20 +213,19 @@
 					var img = $('<img />')
 						.width(size.width)
 						.height(size.height)
-						.attr('data-src-format', 'http://placehold.it/$w/$h')
-						.attr('src', 'http://placehold.it/' + size.width + '/' + size.height);
+						.attr('data-src-format', 'http://placehold.it/$wx$h/' + ~~(Math.random() * 1000))
+						.attr('src', 'http://placehold.it/' + size.width + 'x' + size.height);
 					parallel.append(img);
 				}
 				
 				parallel.find('>img').jitImage({
-					parallelLoadingLimit: 2,
+					parallelLoadingLimit: 3,
 					load: function (size, e, err) {
 						count++;
 						var nsize = randomSize();
 						parallel.width(nsize.width).height(nsize.height);
-						//if (count <= total) {
-							ok(!err);
-						//}
+						
+						ok(!err);
 						
 						if (count == total) {
 							start();
