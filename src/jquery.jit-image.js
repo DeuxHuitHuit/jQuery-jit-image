@@ -79,8 +79,9 @@
 			
 			if (!!urlFormat && !!size && (size.height > 0 || size.width > 0)) {
 				// fix for aspect ratio scaling
-				size.width = urlFormat.width ? size.width : false;
-				size.height = urlFormat.height ? size.height : false;
+				size.width = !!urlFormat.width ? size.width : false;
+				size.height = !!urlFormat.height ? size.height : false;
+				// set the image's url and css
 				o.set(t, size, urlFormat.url, o.forceCssResize, o.load);
 			}
 		}
@@ -178,8 +179,10 @@
 	
 	// Use data attribute to automatically hook up nodes
 	win.load(function init() {
-		$(_defaults.defaultSelector).jitImage();
-		_registerOnce();
+		if (!!_defaults.defaultSelector) {
+			$(_defaults.defaultSelector).jitImage();
+			_registerOnce();
+		}
 	});
 	
 })(jQuery, window.jitImageSelector, window.jitImageDataAttribute);
