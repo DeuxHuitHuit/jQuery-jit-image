@@ -50,6 +50,8 @@
 	<div id="integration">
 		<img data-src-format="http://www.deuxhuithuit.com/image/1/$w/$h/assets/img/logo288-accueil-black.png" />
 	</div>
+	
+	<div id="parallel"></div>
 
 	<script src="../src/jquery.jit-image.js"></script> 
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.js"></script>
@@ -58,19 +60,14 @@
 		
 		"use strict";
 		
-		var
+		var win = $(window);
+		var container = $('#container');
+		var set = $('#set');
+		var format = $('#format');
+		var integration = $('#integration>img');
+		var parallel = $('#parallel');
 		
-		win = $(window), 
-		
-		container = $('#container'),
-		
-		set = $('#set'),
-		
-		format = $('#format'),
-		
-		integration = $('#integration>img'),
-		
-		runTests = function  () {
+		var runTests = function  () {
 			
 			module('jQuery.jit-image.unit');
 			
@@ -190,6 +187,16 @@
 			});
 			
 		}; // end run tests
+		
+		for (var x = 0; x < 10; x++) {
+			var height = ~~((Math.random() * 10000) % 100) + 250;
+			var width = ~~((Math.random() * 10000) % 100) + 500;
+			var img = $('<img />')
+				.width(width)
+				.height(height)
+				.attr('src', 'http://placehold.it/' + width + '/' + height);
+			parallel.append(img);
+		}
 		
 		win.load(runTests);
 		
