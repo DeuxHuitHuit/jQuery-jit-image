@@ -1,35 +1,33 @@
 /*
  *  jQuery JIT image v1.1 - jQuery plugin
  *
- *  Copyright (c) 2013 Deux Huit Huit (http://www.deuxhuithuit.com/)
+ *  Copyright (c) 2013-2014 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
  *  (https://raw.github.com/DeuxHuitHuit/jQuery-jit-image/master/LICENSE.txt)
  */
 (function ($, defaultSelector, dataAttribute, undefined) {
 	
-	"use strict";
+	'use strict';
 	
 	// assure param values
 	dataAttribute = dataAttribute || 'data-src-format';
 	defaultSelector = defaultSelector || 'img['+dataAttribute+']';
 	$.fn.on = $.fn.on || $.fn.bind;
 	
-	var
+	var win = $(window);
 	
-	win = $(window),
+	var instances = $();
 	
-	instances = $(),
+	var DATA_KEY = 'jitImageOptions';
 	
-	DATA_KEY = 'jitImageOptions',
-	
-	_getSize = function (o) {
+	var _getSize = function (o) {
 		return {
 			width: o.container.width(),
 			height: o.container.height()
 		};
-	},
+	};
 	
-	_set = function (t, size, url, forceCssResize, callback) {
+	var _set = function (t, size, url, forceCssResize, callback) {
 		if (!!t && !!size) {
 			if (!!forceCssResize && !!size.width) {
 				t.attr('width', size.width).width(size.width);
@@ -55,12 +53,11 @@
 				t.attr('src', url);
 			}
 		}
-	},
+	};
 	
-	_getUrlFromFormat = function (t, o, size) {
-		var 
-		format = t.attr(o.dataAttribute),
-		urlFormat = {
+	var _getUrlFromFormat = function (t, o, size) {
+		var format = t.attr(o.dataAttribute);
+		var urlFormat = {
 			url: format,
 			height: false,
 			width: false
@@ -73,13 +70,13 @@
 					.replace(o.heightPattern, ~~size.height);
 		}
 		return urlFormat;
-	},
+	};
 	
-	_update = function (t, o) {
+	var _update = function (t, o) {
 		if (!!o && !!t) {
-			var 
-			size = o.size(o),
-			urlFormat = _getUrlFromFormat(t, o, size);
+			var size = o.size(o);
+			var urlFormat = _getUrlFromFormat(t, o, size);
+			
 			if (!!urlFormat && !!size && (size.height > 0 || size.width > 0)) {
 				// fix for aspect ratio scaling
 				size.width = urlFormat.width ? size.width : false;
@@ -87,9 +84,9 @@
 				o.set(t, size, urlFormat.url, o.forceCssResize, o.load);
 			}
 		}
-	},
+	};
 	
-	_updateAll = function () {
+	var _updateAll = function () {
 		$.each(instances, function _resize(index, element) {
 			var $el = $(element);
 			var data = $el.data(DATA_KEY);
@@ -112,16 +109,16 @@
 		});
 		// re-register event
 		setTimeout(_registerOnce, _defaults.eventTimeout);
-	},
+	};
 	
-	eventTimer = null,
+	var eventTimer = null;
 	
-	updateOnEvent = function (e) {
+	var updateOnEvent = function (e) {
 		clearTimeout(eventTimer);
 		eventTimer = setTimeout(_updateAll, _defaults.eventTimeout);
-	},
+	};
 	
-	_defaults = {
+	var _defaults = {
 		container: null,
 		dataAttribute: dataAttribute,
 		defaultSelector: defaultSelector,
@@ -135,9 +132,9 @@
 		load: $.noop,
 		nonVisibleDelay: 1000,
 		forceCssResize: true
-	},
+	};
 	
-	_registerOnce = function () {
+	var _registerOnce = function () {
 		win.one(_defaults.updateEvents, updateOnEvent);
 	};
 	
@@ -152,15 +149,12 @@
 	};
 	
 	$.fn.jitImage = function (options) {
-		var
+		var t = $(this);
 		
-		t = $(this),
-		
-		_each = function (index, element) {
-			var 
-			o = $.extend({}, _defaults, options),
-			t = $(element),
-			container = t.attr(o.containerDataAttribute);
+		var _each = function (index, element) {
+			var o = $.extend({}, _defaults, options);
+			var t = $(element);
+			var container = t.attr(o.containerDataAttribute);
 			// assure container
 			// do it here since elements may have
 			// different parents
