@@ -28,10 +28,12 @@
 		var checkTimeout = 0;
 		
 		var processQueue = function () {
-			while (!!queue.length && active < queue[0].limit) {
+			while (!!queue.length && (active < queue[0].limit || !active)) {
 				var cur = queue.shift();
+				// increment must be done before since
+				// the update call may call .done already
 				active++;
-				cur.update();	
+				cur.update();
 			}
 			checkTimeout = 0;
 		};
@@ -62,8 +64,8 @@
 		var done = function (elem, args) {
 			if (active > 0) {
 				active--;
-				checkQueue();
 			}
+			checkQueue();
 		};
 		
 		return {
@@ -77,7 +79,7 @@
 				return active;
 			},
 			queue: function () {
-				return queue;	
+				return queue;
 			}
 		};
 	})();
@@ -104,8 +106,14 @@
 				t.removeAttr('height').height('');
 			}
 			
+			var unregisterEvents = function () {
+				return t.off('load.jitImage')
+					.off('error.jitImage');
+			};
+			
 			var callbackCreator = function (err) {
 				return function (e) {
+					unregisterEvents();
 					var args = [size, e, err];
 					if (!!parallelLoadingLimit) {
 						loader.done(t, args);
@@ -119,14 +127,15 @@
 			
 			if (!!url && t.attr('src') !== url) {
 				// register for load
-				t.off('load.jitImage')
-					.off('error.jitImage')
-					.one('load.jitImage', callbackCreator(false))
-					.one('error.jitImage', callbackCreator(true));
+				unregisterEvents()
+					.on('load.jitImage', callbackCreator(false))
+					.on('error.jitImage', callbackCreator(true));
 				// load it
 				t.attr('src', url);
+				return true;
 			}
 		}
+		return false;
 	};
 	
 	var _getUrlFromFormat = function (t, o, size) {
@@ -153,6 +162,7 @@
 	};
 	
 	var _update = function (t, o) {
+		var success = false;
 		if (!!o && !!t) {
 			var size = o.size(o);
 			var urlFormat = _getUrlFromFormat(t, o, size);
@@ -165,8 +175,19 @@
 				size.width = urlFormat.width ? size.width : false;
 				size.height = urlFormat.height ? size.height : false;
 				// set the image's url and css
-				o.set(t, size, urlFormat.url, o.forceCssResize, o.load, o.parallelLoadingLimit);
+				success = o.set(
+					t,
+					size,
+					urlFormat.url,
+					o.forceCssResize,
+					o.load,
+					o.parallelLoadingLimit
+				);
 			}
+		}
+		// remove from loader if not load was started
+		if (!success && !!o.parallelLoadingLimit) {
+			loader.done(t, [null, null, true]);
 		}
 	};
 	
