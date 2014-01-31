@@ -134,7 +134,8 @@
 		var urlFormat = {
 			url: format,
 			height: false,
-			width: false
+			width: false,
+			formatFound: false
 		};
 		if (!!format) {
 			urlFormat.width = o.widthPattern.test(format);
@@ -142,6 +143,7 @@
 			urlFormat.url = format
 					.replace(o.widthPattern, ~~size.width)
 					.replace(o.heightPattern, ~~size.height);
+			urlFormat.formatFound = true;
 		}
 		return urlFormat;
 	};
@@ -214,8 +216,8 @@
 		containerDataAttribute: 'data-container',
 		size: _getSize,
 		set: _set,
-		widthPattern: /\$w/gi,
-		heightPattern: /\$h/gi,
+		widthPattern: /\$w/i,
+		heightPattern: /\$h/i,
 		updateEvents: 'resize orientationchange',
 		eventTimeout: 50,
 		load: $.noop,
