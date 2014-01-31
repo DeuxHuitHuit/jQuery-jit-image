@@ -252,8 +252,11 @@
 		var t = $(this);
 		
 		var _each = function (index, element) {
-			var o = $.extend({}, _defaults, options);
 			var t = $(element);
+			// resuse old options if they exists
+			var oldOptions = t.data(DATA_KEY) || {};
+			var o = $.extend(oldOptions, _defaults, options);
+			
 			var container = t.attr(o.containerDataAttribute);
 			var parentContainer = !!container ? 
 					t.closest(container) : 
