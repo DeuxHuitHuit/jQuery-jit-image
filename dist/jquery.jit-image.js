@@ -1,4 +1,4 @@
-/*! jQuery JIT image - v1.2.0 - build 5 - 2014-01-28
+/*! jQuery JIT image - v1.2.0 - build 11 - 2014-01-31
 * https://github.com/DeuxHuitHuit/jQuery-jit-image
 * Copyright (c) 2014 Deux Huit Huit (http://www.deuxhuithuit.com/);
 * Licensed MIT */
@@ -32,10 +32,12 @@
 		var checkTimeout = 0;
 		
 		var processQueue = function () {
-			while (!!queue.length && active < queue[0].limit) {
+			while (!!queue.length && (active < queue[0].limit || !active)) {
 				var cur = queue.shift();
+				// increment must be done before since
+				// the update call may call .done already
 				active++;
-				cur.update();	
+				cur.update();
 			}
 			checkTimeout = 0;
 		};
@@ -47,25 +49,41 @@
 		};
 		
 		var push = function (job) {
-			queue.push(job);
+			var found = false;
+			$.each(queue, function (index, j) {
+				// elem is already in the queue
+				if (j.elem.is(job.elem)) {
+					// replace old job with new one
+					queue[index] = job;
+					found = true;
+					return found;
+				}
+			});
+			if (!found) {
+				queue.push(job);
+			}
 			checkQueue();
 		};
 		
 		var done = function (elem, args) {
 			if (active > 0) {
 				active--;
-				checkQueue();
 			}
+			checkQueue();
 		};
 		
 		return {
 			push: push,
 			done: done,
+			check: checkQueue,
 			count: function () {
 				return queue.length;
 			},
 			active: function () {
 				return active;
+			},
+			queue: function () {
+				return queue;
 			}
 		};
 	})();
@@ -92,8 +110,14 @@
 				t.removeAttr('height').height('');
 			}
 			
+			var unregisterEvents = function () {
+				return t.off('load.jitImage')
+					.off('error.jitImage');
+			};
+			
 			var callbackCreator = function (err) {
 				return function (e) {
+					unregisterEvents();
 					var args = [size, e, err];
 					if (!!parallelLoadingLimit) {
 						loader.done(t, args);
@@ -107,14 +131,15 @@
 			
 			if (!!url && t.attr('src') !== url) {
 				// register for load
-				t.off('load.jitImage')
-					.off('error.jitImage')
-					.one('load.jitImage', callbackCreator(false))
-					.one('error.jitImage', callbackCreator(true));
+				unregisterEvents()
+					.on('load.jitImage', callbackCreator(false))
+					.on('error.jitImage', callbackCreator(true));
 				// load it
 				t.attr('src', url);
+				return true;
 			}
 		}
+		return false;
 	};
 	
 	var _getUrlFromFormat = function (t, o, size) {
@@ -122,30 +147,51 @@
 		var urlFormat = {
 			url: format,
 			height: false,
-			width: false
+			width: false,
+			formatted: false
 		};
 		if (!!format) {
 			urlFormat.width = o.widthPattern.test(format);
 			urlFormat.height = o.heightPattern.test(format);
-			urlFormat.url = format
-					.replace(o.widthPattern, ~~size.width)
-					.replace(o.heightPattern, ~~size.height);
+			if (urlFormat.width) {
+				format = format.replace(o.widthPattern, ~~size.width);
+			}
+			if (urlFormat.height) {
+				format = format.replace(o.heightPattern, ~~size.height);
+			}
+			urlFormat.url = format;
+			urlFormat.formatted = urlFormat.width || urlFormat.height;
 		}
 		return urlFormat;
 	};
 	
 	var _update = function (t, o) {
+		var success = false;
 		if (!!o && !!t) {
 			var size = o.size(o);
 			var urlFormat = _getUrlFromFormat(t, o, size);
+			var urlFormatSuccess = !!urlFormat && !!urlFormat.url;
+			var sizeSucces = !!size && (size.height > 0 || size.width > 0);
 			
-			if (!!urlFormat && !!size && (size.height > 0 || size.width > 0)) {
+			if (urlFormatSuccess && sizeSucces) {
 				// fix for aspect ratio scaling
-				size.width = !!urlFormat.width ? size.width : false;
-				size.height = !!urlFormat.height ? size.height : false;
+				// Only pass the size value if it was matched
+				size.width = urlFormat.width ? size.width : false;
+				size.height = urlFormat.height ? size.height : false;
 				// set the image's url and css
-				o.set(t, size, urlFormat.url, o.forceCssResize, o.load, o.parallelLoadingLimit);
+				success = o.set(
+					t,
+					size,
+					urlFormat.url,
+					o.forceCssResize,
+					o.load,
+					o.parallelLoadingLimit
+				);
 			}
+		}
+		// remove from loader if not load was started
+		if (!success && !!o.parallelLoadingLimit) {
+			loader.done(t, [null, null, true]);
 		}
 	};
 	
@@ -155,7 +201,7 @@
 			var data = $el.data(DATA_KEY);
 			var visible = $el.is(':visible');
 			var update = function () {
-				_update($el, $el.data(DATA_KEY));
+				_update($el, data);
 			};
 			
 			if (!data) {
@@ -202,8 +248,8 @@
 		containerDataAttribute: 'data-container',
 		size: _getSize,
 		set: _set,
-		widthPattern: /\$w/gi,
-		heightPattern: /\$h/gi,
+		widthPattern: /\$w/i,
+		heightPattern: /\$h/i,
 		updateEvents: 'resize orientationchange',
 		eventTimeout: 50,
 		load: $.noop,
@@ -223,15 +269,19 @@
 		defaults: _defaults,
 		_getSize: _getSize,
 		_set: _set,
-		_getUrlFromFormat: _getUrlFromFormat
+		_getUrlFromFormat: _getUrlFromFormat,
+		loader: loader
 	};
 	
 	$.fn.jitImage = function (options) {
 		var t = $(this);
 		
 		var _each = function (index, element) {
-			var o = $.extend({}, _defaults, options);
 			var t = $(element);
+			// resuse old options if they exists
+			var oldOptions = t.data(DATA_KEY) || {};
+			var o = $.extend({}, _defaults, oldOptions, options);
+			
 			var container = t.attr(o.containerDataAttribute);
 			var parentContainer = !!container ? 
 					t.closest(container) : 
