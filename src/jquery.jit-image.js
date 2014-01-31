@@ -43,7 +43,19 @@
 		};
 		
 		var push = function (job) {
-			queue.push(job);
+			var found = false;
+			$.each(queue, function (index, j) {
+				// elem is already in the queue
+				if (j.elem.is(job.elem)) {
+					// replace old job with new one
+					queue[index] = job;
+					found = true;
+					return found;
+				}
+			});
+			if (!found) {
+				queue.push(job);
+			}
 			checkQueue();
 		};
 		
@@ -57,11 +69,15 @@
 		return {
 			push: push,
 			done: done,
+			check: checkQueue,
 			count: function () {
 				return queue.length;
 			},
 			active: function () {
 				return active;
+			},
+			queue: function () {
+				return queue;	
 			}
 		};
 	})();
@@ -151,7 +167,7 @@
 			var data = $el.data(DATA_KEY);
 			var visible = $el.is(':visible');
 			var update = function () {
-				_update($el, $el.data(DATA_KEY));
+				_update($el, data);
 			};
 			
 			if (!data) {
@@ -219,7 +235,8 @@
 		defaults: _defaults,
 		_getSize: _getSize,
 		_set: _set,
-		_getUrlFromFormat: _getUrlFromFormat
+		_getUrlFromFormat: _getUrlFromFormat,
+		loader: loader
 	};
 	
 	$.fn.jitImage = function (options) {
