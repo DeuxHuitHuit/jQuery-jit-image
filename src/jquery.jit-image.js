@@ -135,15 +135,19 @@
 			url: format,
 			height: false,
 			width: false,
-			formatFound: false
+			formatted: false
 		};
 		if (!!format) {
 			urlFormat.width = o.widthPattern.test(format);
 			urlFormat.height = o.heightPattern.test(format);
-			urlFormat.url = format
-					.replace(o.widthPattern, ~~size.width)
-					.replace(o.heightPattern, ~~size.height);
-			urlFormat.formatFound = true;
+			if (urlFormat.width) {
+				format = format.replace(o.widthPattern, ~~size.width);
+			}
+			if (urlFormat.height) {
+				format = format.replace(o.heightPattern, ~~size.height);
+			}
+			urlFormat.url = format;
+			urlFormat.formatted = urlFormat.width || urlFormat.height;
 		}
 		return urlFormat;
 	};
@@ -152,11 +156,14 @@
 		if (!!o && !!t) {
 			var size = o.size(o);
 			var urlFormat = _getUrlFromFormat(t, o, size);
+			var urlFormatSuccess = !!urlFormat && !!urlFormat.url;
+			var sizeSucces = !!size && (size.height > 0 || size.width > 0);
 			
-			if (!!urlFormat && !!size && (size.height > 0 || size.width > 0)) {
+			if (urlFormatSuccess && sizeSucces) {
 				// fix for aspect ratio scaling
-				size.width = !!urlFormat.width ? size.width : false;
-				size.height = !!urlFormat.height ? size.height : false;
+				// Only pass the size value if it was matched
+				size.width = urlFormat.width ? size.width : false;
+				size.height = urlFormat.height ? size.height : false;
 				// set the image's url and css
 				o.set(t, size, urlFormat.url, o.forceCssResize, o.load, o.parallelLoadingLimit);
 			}
