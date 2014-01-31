@@ -1,9 +1,17 @@
 # jQuery JIT image
 
-#### Version 1.1
+#### Version 1.2
 
 This jQuery plugin facilitates the use of jit image manipulation on the server with medias queries.
-By default, the plugin uses the image parent size for reference.
+By default, the plugin uses the image's parent size for reference, but this can be customized via the `data-container` attribute.
+
+Instances only need to be registered once and they will get updated the the window resizes, if needed.
+
+It also has two ways of dealing with the resize: it can change the `src` attribute of all the elements
+at once or can serialize the change, and hence, the download. By default, it uses the first method, 
+but delays elements that are not visible (1sec delay, `nonVisibleDelay` option). But if you set the `
+`parallelLoadingLimit` to a value greater than one, the plugin will make sure that not more than 
+this much download are running in parallel. But beware when mixing different values of this parameter since the limit is checked in a *per element* manner.
 
 ## Usage
 
@@ -11,7 +19,7 @@ By default, the plugin uses the image parent size for reference.
 
 ````html
 <div id="img-container">
-	<img src="..." data-src-format="/jit/{w}/{h}/path/to/image.jpg" alt="" />
+	<img src="..." data-src-format="/jit/{$w}/{$h}/path/to/image.jpg" alt="" />
 </div>
 ````
 
@@ -36,17 +44,17 @@ Possible options and their default values.
 
 ````javascript
 {
-	container: null,
+	container: null, // the reference element for the size
 	dataAttribute: 'data-src-format',
 	defaultSelector: 'img[data-src-format]',
 	containerDataAttribute: 'data-container', // reference container, by default, the parent
-	widthPattern: /\$w/gi,
-	heightPattern: /\$h/gi,
-	updateEvents: 'resize orientationchange',
-	eventTimeout: 50,
+	widthPattern: /\$w/i, // regexp to identify the width pattern
+	heightPattern: /\$h/i, // regexp to identify the height pattern
+	eventTimeout: 50, // the timer for event dispatching
 	load: function (size) {}, // image loaded callback. Raises the 'loaded.jitImage' too.
 	nonVisibleDelay: 1000,  // delay resizing of non-visible images
-	forceCssResize: true
+	forceCssResize: true, // change the css properties of the image as well
+	parallelLoadingLimit: 0 // limit the number of concurent requests
 }
 ````
 
@@ -57,7 +65,10 @@ This allows modifiation of the values before the script is event loaded.
 
 `window.jitImageDataAttribute` the data attribute to look for the image format.
 
+You can also changes all default values on a global level after the script is loaded
+with the `$.jitImage.defaults` object.
+
 ## License
 
 MIT Licensed. See LICENSE.txt or <http://deuxhuithuit.mit-license.org>
-(c) [Deux Huit Huit](http://www.deuxhuithuit.com/?ref=github)
+(c) [Deux Huit Huit](http://deuxhuithuit.com/?ref=github)
