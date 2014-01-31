@@ -204,6 +204,13 @@
 			
 			module('jQuery.jit-image.parallel');
 			
+			test('$.fn.jitImage.loader', function loaderTest () {
+				ok($.isPlainObject($.jitImage.loader), 'loader is object');
+				ok($.isFunction($.jitImage.loader.queue), 'loader.queue is function');
+				ok($.isFunction($.jitImage.loader.push), 'loader.push is function');
+				ok($.isFunction($.jitImage.loader.done), 'loader.done is function');
+			});
+			
 			asyncTest('$.fn.jitImage.parallel', function parallelTest () {
 				var count = 0;
 				var total = 10;
@@ -213,7 +220,7 @@
 					var img = $('<img />')
 						.width(size.width)
 						.height(size.height)
-						.attr('data-src-format', 'http://placehold.it/$wx$h/' + ~~(Math.random() * 1000))
+						.attr('data-src-format', 'http://placehold.it/$wx$h/' + ~~(Math.random() * 1000000))
 						.attr('src', 'http://placehold.it/' + size.width + 'x' + size.height);
 					parallel.append(img);
 				}
@@ -222,10 +229,17 @@
 					parallelLoadingLimit: 3,
 					load: function (size, e, err) {
 						count++;
+						// resize the parent to a random value
 						var nsize = randomSize();
 						parallel.width(nsize.width).height(nsize.height);
-						
-						ok(!err);
+						// this prevents the test from failing when resizing
+						// the window
+						if (count <= total) {
+							ok(!err, 'no error');
+							ok(this.attr('src'), 'new src: ' + this.attr('src'));
+							ok(size.width, 'new width: ' + size.width);
+							ok(size.height, 'new height: ' + size.height);
+						}
 						
 						if (count == total) {
 							start();
