@@ -1,6 +1,6 @@
 # jQuery JIT image
 
-#### Version 1.2
+#### Version 1.2.1
 
 ### This is our response to "responsive images"
 

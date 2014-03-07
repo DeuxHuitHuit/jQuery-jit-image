@@ -1,5 +1,5 @@
 /*
- *  jQuery JIT image v1.2 - jQuery plugin
+ *  jQuery JIT image v1.2.1 - jQuery plugin
  *
  *  Copyright (c) 2013-2014 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
