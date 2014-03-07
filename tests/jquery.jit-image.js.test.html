@@ -14,7 +14,7 @@
 		
 		#parallel {
 			width: 500px;
-			height: 300px;	
+			height: 300px;
 		}
 	</style>
 	
@@ -43,9 +43,9 @@
 	</script>
 </head>
 <body>
-	<h1 id="qunit-header">jQuery JIT image</h1>  
-	<h2 id="qunit-banner"></h2>  
-	<h2 id="qunit-userAgent"></h2>  
+	<h1 id="qunit-header">jQuery JIT image</h1>
+	<h2 id="qunit-banner"></h2>
+	<h2 id="qunit-userAgent"></h2>
 	<ol id="qunit-tests"></ol>
 	<div id="qunit-fixture"></div>
 	
@@ -199,6 +199,35 @@
 					equal(integration.width(), size.width, 'width is now ' + size.width);
 					ok(!integration.attr('height'), 'height attribute has been removed');
 				}, $.jitImage.defaults.eventTimeout+50);
+			});
+			
+			asyncTest('$.jit-image.format callback', function integrationTest () {
+				
+				var format = 'http://www.deuxhuithuit.com/workspace/assets/img/logo288-accueil-black.png';
+				
+				integration.jitImage({
+					parallelLoadingLimit: 0,
+					bypassDefaultFormat: true,
+					format: function (urlFormat, o, size) {
+						ok(true, 'format callback has been called');
+						ok(!urlFormat.formatted, 'default format has been bypassed');
+						
+						urlFormat.url = format;
+						urlFormat.formatted = true;
+						
+					},
+					updated: function (urlFormat, o, size) {
+						ok(urlFormat.formatted, 'has been formatted');
+						equal(format, urlFormat.url, 'url format is ' + format);
+						equal(format, this.attr('src'), 'img src is ' + format);
+						
+						start();
+						
+						// clean up
+						$.jitImage.remove(integration);
+					}
+				});
+				
 			});
 			
 			
