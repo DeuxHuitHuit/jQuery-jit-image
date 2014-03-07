@@ -53,7 +53,11 @@
 	<div id="set"></div>
 	<div id="format" data-format="/$w/$h/"></div>
 	<div id="integration">
-		<img data-src-format="http://www.deuxhuithuit.com/image/1/$w/$h/assets/img/logo288-accueil-black.png" />
+		<img
+			src=""
+			data-src-format="http://www.deuxhuithuit.com/image/1/$w/$h/assets/img/logo288-accueil-black.png"
+			data-src-format-attributes="http://www.deuxhuithuit.com/image/1/100/0/assets/img/logo288-accueil-black.png?attributes"
+			/>
 	</div>
 	
 	<div id="parallel"></div>
@@ -198,6 +202,8 @@
 					start();
 					equal(integration.width(), size.width, 'width is now ' + size.width);
 					ok(!integration.attr('height'), 'height attribute has been removed');
+					// clean up
+					$.jitImage.remove(integration);
 				}, $.jitImage.defaults.eventTimeout+50);
 			});
 			
@@ -214,12 +220,34 @@
 						
 						urlFormat.url = format;
 						urlFormat.formatted = true;
-						
 					},
 					updated: function (urlFormat, o, size) {
 						ok(urlFormat.formatted, 'has been formatted');
 						equal(format, urlFormat.url, 'url format is ' + format);
 						equal(format, this.attr('src'), 'img src is ' + format);
+						
+						start();
+						
+						// clean up
+						$.jitImage.remove(integration);
+					}
+				});
+				
+			});
+			
+			asyncTest('$.jit-image.attributes callback', function integrationTest () {
+				
+				integration.jitImage({
+					parallelLoadingLimit: 0,
+					dataAttribute: function () {
+						ok(true, 'data attribute');
+						return 'data-src-format-attributes';
+					},
+					containerDataAttribute: function () {
+						ok(true, 'data container attribute');
+						return null;
+					},
+					updated: function (urlFormat, o, size) {
 						
 						start();
 						

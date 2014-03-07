@@ -46,10 +46,10 @@ Possible options and their default values.
 
 ````javascript
 {
-	container: null, // the reference element for the size
-	dataAttribute: 'data-src-format',
+	container: null, // the reference element for the size, jQuery, DOM or selector
+	dataAttribute: 'data-src-format', // can also be function
 	defaultSelector: 'img[data-src-format]',
-	containerDataAttribute: 'data-container', // reference container, by default, the parent
+	containerDataAttribute: 'data-container', // reference container, by default, the parent. Can also be function
 	widthPattern: /\$w/i, // regexp to identify the width pattern
 	heightPattern: /\$h/i, // regexp to identify the height pattern
 	eventTimeout: 50, // the timer for event dispatching

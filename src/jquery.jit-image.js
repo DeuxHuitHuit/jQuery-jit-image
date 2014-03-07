@@ -9,9 +9,7 @@
 	
 	'use strict';
 	
-	// assure param values
-	dataAttribute = dataAttribute || 'data-src-format';
-	defaultSelector = defaultSelector || 'img[' + dataAttribute + ']';
+	// old jquery fix
 	$.fn.on = $.fn.on || $.fn.bind;
 	$.fn.off = $.fn.off || $.fn.unbind;
 	
@@ -27,6 +25,10 @@
 		}
 		return obj;
 	};
+	
+	// assure params values
+	dataAttribute = dataAttribute || 'data-src-format';
+	defaultSelector = defaultSelector || 'img[' + getValue(dataAttribute) + ']';
 	
 	var loader = (function createLoader() {
 		var queue = [];
@@ -279,6 +281,9 @@
 	
 	$.jitImage = {
 		remove: function (t) {
+			// remove DATA
+			t.data(DATA_KEY, null);
+			// removes from instances
 			instances = instances.not(t);
 		},
 		defaults: _defaults,
@@ -293,11 +298,11 @@
 		
 		var _each = function (index, element) {
 			var t = $(element);
-			// resuse old options if they exists
+			// re-use old options if they exists
 			var oldOptions = t.data(DATA_KEY) || {};
 			var o = $.extend({}, _defaults, oldOptions, options);
-			
-			var container = t.attr(o.containerDataAttribute);
+			var containerAttribute = getValue(o.containerDataAttribute);
+			var container = !!containerAttribute ? t.attr(containerAttribute) : null;
 			var parentContainer = !!container ? 
 					t.closest(container) : 
 					!t.parent().length ? t : t.parent();
