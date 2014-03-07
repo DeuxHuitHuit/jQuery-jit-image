@@ -2,15 +2,17 @@
 
 #### Version 1.2
 
-This jQuery plugin facilitates the use of jit image manipulation on the server with medias queries.
-By default, the plugin uses the image's parent size for reference, but this can be customized via the `data-container` attribute.
+### This is our response to "responsive images"
+
+This jQuery plug-in facilitates the use of jit (just in time) image manipulation on the server with medias queries.
+By default, the plug-in uses the image's parent size for reference, but this can be customized via the `data-container` attribute.
 
 Instances only need to be registered once and they will get updated the the window resizes, if needed.
 
 It also has two ways of dealing with the resize: it can change the `src` attribute of all the elements
 at once or can serialize the change, and hence, the download. By default, it uses the first method, 
-but delays elements that are not visible (1sec delay, `nonVisibleDelay` option). But if you set the `
-`parallelLoadingLimit` to a value greater than one, the plugin will make sure that not more than 
+but delays elements that are not visible (1 sec delay, `nonVisibleDelay` option). But if you set the `
+`parallelLoadingLimit` to a value greater than one, the plug-in will make sure that not more than 
 this much download are running in parallel. But beware when mixing different values of this parameter since the limit is checked in a *per element* manner.
 
 ## Usage
@@ -23,7 +25,7 @@ this much download are running in parallel. But beware when mixing different val
 </div>
 ````
 
-The plugin with automatically call it self on the DOM node with the right data attribute.
+The plug-in with automatically call it self on the DOM node with the right data attribute.
 The `container` option call also be set via the `data-container` attribute.
 
 - Manually via script:
@@ -54,12 +56,15 @@ Possible options and their default values.
 	load: function (size) {}, // image loaded callback. Raises the 'loaded.jitImage' too.
 	nonVisibleDelay: 1000,  // delay resizing of non-visible images
 	forceCssResize: true, // change the css properties of the image as well
-	parallelLoadingLimit: 0 // limit the number of concurent requests
+	parallelLoadingLimit: 0, // limit the number of concurrent requests (0 = disabled)
+	format: null, // function (urlFormat, o, size)
+	bypassDefaultFormat: false,
+	updated: null // function (urlFormat, o, size)
 }
 ````
 
-Global default options are also available an can be setted usign global variables.
-This allows modifiation of the values before the script is event loaded.
+Global default options are also available an can be set using global variables.
+This allows modification of the values before the script is event loaded.
 
 `window.jitImageSelector` default selector for the auto load image.
 
