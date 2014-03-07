@@ -1,4 +1,4 @@
-/*! jQuery JIT image - v1.2.0 - build 11 - 2014-01-31
+/*! jQuery JIT image - v1.2.0 - build 12 - 2014-03-07
 * https://github.com/DeuxHuitHuit/jQuery-jit-image
 * Copyright (c) 2014 Deux Huit Huit (http://www.deuxhuithuit.com/);
 * Licensed MIT */
@@ -13,9 +13,7 @@
 	
 	'use strict';
 	
-	// assure param values
-	dataAttribute = dataAttribute || 'data-src-format';
-	defaultSelector = defaultSelector || 'img[' + dataAttribute + ']';
+	// old jquery fix
 	$.fn.on = $.fn.on || $.fn.bind;
 	$.fn.off = $.fn.off || $.fn.unbind;
 	
@@ -24,6 +22,17 @@
 	var instances = $();
 	
 	var DATA_KEY = 'jitImageOptions';
+	
+	var getValue = function (obj) {
+		if ($.isFunction(obj)) {
+			return obj.call(this);
+		}
+		return obj;
+	};
+	
+	// assure params values
+	dataAttribute = dataAttribute || 'data-src-format';
+	defaultSelector = defaultSelector || 'img[' + getValue(dataAttribute) + ']';
 	
 	var loader = (function createLoader() {
 		var queue = [];
@@ -143,7 +152,7 @@
 	};
 	
 	var _getUrlFromFormat = function (t, o, size) {
-		var format = t.attr(o.dataAttribute);
+		var format = t.attr(getValue(o.dataAttribute));
 		var urlFormat = {
 			url: format,
 			height: false,
@@ -151,16 +160,22 @@
 			formatted: false
 		};
 		if (!!format) {
-			urlFormat.width = o.widthPattern.test(format);
-			urlFormat.height = o.heightPattern.test(format);
-			if (urlFormat.width) {
-				format = format.replace(o.widthPattern, ~~size.width);
+			if (!o.bypassDefaultFormat) {
+				urlFormat.width = o.widthPattern.test(format);
+				urlFormat.height = o.heightPattern.test(format);
+				if (urlFormat.width) {
+					format = format.replace(o.widthPattern, ~~size.width);
+				}
+				if (urlFormat.height) {
+					format = format.replace(o.heightPattern, ~~size.height);
+				}
+				urlFormat.url = format;
+				urlFormat.formatted = urlFormat.width || urlFormat.height;
 			}
-			if (urlFormat.height) {
-				format = format.replace(o.heightPattern, ~~size.height);
+			
+			if ($.isFunction(o.format)) {
+				o.format.call(t, urlFormat, o, size);
 			}
-			urlFormat.url = format;
-			urlFormat.formatted = urlFormat.width || urlFormat.height;
 		}
 		return urlFormat;
 	};
@@ -187,6 +202,10 @@
 					o.load,
 					o.parallelLoadingLimit
 				);
+				
+				if (success && $.isFunction(o.updated)) {
+					o.updated.call(t, urlFormat, o, size);
+				}
 			}
 		}
 		// remove from loader if not load was started
@@ -219,7 +238,7 @@
 					update();
 				}
 			}
-			// Limit concurents image loading
+			// Limit concurrents image loading
 			else {
 				loader.push({
 					elem: $el,
@@ -230,7 +249,6 @@
 			}
 		});
 		// re-register event
-		//setTimeout(_registerOnce, _defaults.eventTimeout);
 		_registerOnce();
 	};
 	
@@ -243,19 +261,22 @@
 	
 	var _defaults = {
 		container: null,
-		dataAttribute: dataAttribute,
+		dataAttribute: dataAttribute, // can also be function
 		defaultSelector: defaultSelector,
-		containerDataAttribute: 'data-container',
+		containerDataAttribute: 'data-container', // can also be function
 		size: _getSize,
 		set: _set,
 		widthPattern: /\$w/i,
 		heightPattern: /\$h/i,
 		updateEvents: 'resize orientationchange',
 		eventTimeout: 50,
-		load: $.noop,
+		load: null, // function (size, e, err)
 		nonVisibleDelay: 1000,
 		forceCssResize: true,
-		parallelLoadingLimit: 0
+		parallelLoadingLimit: 0,
+		format: null, // function (urlFormat, o, size)
+		bypassDefaultFormat: false,
+		updated: null // function (urlFormat, o, size)
 	};
 	
 	var _registerOnce = function () {
@@ -264,6 +285,9 @@
 	
 	$.jitImage = {
 		remove: function (t) {
+			// remove DATA
+			t.data(DATA_KEY, null);
+			// removes from instances
 			instances = instances.not(t);
 		},
 		defaults: _defaults,
@@ -278,20 +302,20 @@
 		
 		var _each = function (index, element) {
 			var t = $(element);
-			// resuse old options if they exists
+			// re-use old options if they exists
 			var oldOptions = t.data(DATA_KEY) || {};
 			var o = $.extend({}, _defaults, oldOptions, options);
-			
-			var container = t.attr(o.containerDataAttribute);
+			var containerAttribute = getValue(o.containerDataAttribute);
+			var container = !!containerAttribute ? t.attr(containerAttribute) : null;
 			var parentContainer = !!container ? 
 					t.closest(container) : 
 					!t.parent().length ? t : t.parent();
-					
+			
 			// insure container
 			// do it here since elements may have
 			// different parents
 			o.container = !!o.container ? $(o.container) : parentContainer;
-							
+			
 			// save options
 			t.data(DATA_KEY, o);
 			
