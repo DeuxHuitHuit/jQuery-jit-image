@@ -95,12 +95,12 @@
 					container: container
 				},
 				size = {
-					width: 100,
+					width: 101,
 					height: 100
 				};
 				
 				container.width(size.width).height(size.height);
-				deepEqual($.jitImage._getSize(options), size, '{w:100, h:100}');
+				deepEqual($.jitImage._getSize(options), size, '{w:101, h:100}');
 				
 				size = {
 					width: 200,
@@ -108,6 +108,16 @@
 				};
 				container.width(size.width).height(size.height);
 				deepEqual($.jitImage._getSize(options), size, '{w:200, h:20}');
+				
+				size = {
+					width: 201,
+					height: 21
+				};
+				options.forceEvenSize = true;
+				container.width(size.width).height(size.height);
+				size.width++;
+				size.height++;
+				deepEqual($.jitImage._getSize(options), size, 'forceEvenSize {w:202, h:22}');
 			});
 			
 			test('_set', function setTest () {

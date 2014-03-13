@@ -59,7 +59,8 @@ Possible options and their default values.
 	parallelLoadingLimit: 0, // limit the number of concurrent requests (0 = disabled)
 	format: null, // function (urlFormat, o, size)
 	bypassDefaultFormat: false,
-	updated: null // function (urlFormat, o, size)
+	updated: null, // function (urlFormat, o, size)
+	forceEvenSize: false // force size to use even numbers
 }
 ````
 

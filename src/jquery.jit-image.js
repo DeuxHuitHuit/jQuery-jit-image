@@ -94,10 +94,17 @@
 	})();
 	
 	var _getSize = function (o) {
-		return {
-			width: o.container.width(),
-			height: o.container.height()
+		var size = {
+			width: ~~o.container.width(),
+			height: ~~o.container.height()
 		};
+		
+		if (o.forceEvenSize) {
+			size.width = size.width + (size.width % 2);
+			size.height = size.height + (size.height % 2);
+		}
+		
+		return size;
 	};
 	
 	/*jshint maxparams:6 */
@@ -272,7 +279,8 @@
 		parallelLoadingLimit: 0,
 		format: null, // function (urlFormat, o, size)
 		bypassDefaultFormat: false,
-		updated: null // function (urlFormat, o, size)
+		updated: null, // function (urlFormat, o, size)
+		forceEvenSize: false
 	};
 	
 	var _registerOnce = function () {
