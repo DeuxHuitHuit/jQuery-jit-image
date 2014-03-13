@@ -1,9 +1,9 @@
-/*! jQuery JIT image - v1.2.0 - build 12 - 2014-03-07
+/*! jQuery JIT image - v1.2.1 - build 13 - 2014-03-13
 * https://github.com/DeuxHuitHuit/jQuery-jit-image
 * Copyright (c) 2014 Deux Huit Huit (http://www.deuxhuithuit.com/);
 * Licensed MIT */
 /*
- *  jQuery JIT image v1.2 - jQuery plugin
+ *  jQuery JIT image v1.2.1 - jQuery plugin
  *
  *  Copyright (c) 2013-2014 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
@@ -98,10 +98,17 @@
 	})();
 	
 	var _getSize = function (o) {
-		return {
-			width: o.container.width(),
-			height: o.container.height()
+		var size = {
+			width: ~~o.container.width(),
+			height: ~~o.container.height()
 		};
+		
+		if (o.forceEvenSize) {
+			size.width = size.width + (size.width % 2);
+			size.height = size.height + (size.height % 2);
+		}
+		
+		return size;
 	};
 	
 	/*jshint maxparams:6 */
@@ -276,7 +283,8 @@
 		parallelLoadingLimit: 0,
 		format: null, // function (urlFormat, o, size)
 		bypassDefaultFormat: false,
-		updated: null // function (urlFormat, o, size)
+		updated: null, // function (urlFormat, o, size)
+		forceEvenSize: false
 	};
 	
 	var _registerOnce = function () {
