@@ -99,7 +99,7 @@
 			height: ~~o.container.height()
 		};
 		
-		if (o.forceEvenSize) {
+		if (!!o.forceEvenSize) {
 			size.width = size.width + (size.width % 2);
 			size.height = size.height + (size.height % 2);
 		}
@@ -133,8 +133,8 @@
 					if (!!o.parallelLoadingLimit) {
 						loader.done(t, args);
 					}
-					if ($.isFunction(o.callback)) {
-						o.callback.apply(t, args);
+					if ($.isFunction(o.load)) {
+						o.load.apply(t, args);
 					}
 					t.trigger('loaded.jitImage', args);
 				};
