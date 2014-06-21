@@ -166,10 +166,14 @@
 				urlFormat.width = o.widthPattern.test(format);
 				urlFormat.height = o.heightPattern.test(format);
 				if (urlFormat.width) {
-					format = format.replace(o.widthPattern, ~~size.width);
+					format = format.replace(o.widthPattern, 
+						~~(size.width * o.devicePixelRatio)
+					);
 				}
 				if (urlFormat.height) {
-					format = format.replace(o.heightPattern, ~~size.height);
+					format = format.replace(o.heightPattern,
+						~~(size.height * o.devicePixelRatio)
+					);
 				}
 				urlFormat.url = format;
 				urlFormat.formatted = urlFormat.width || urlFormat.height;
@@ -277,7 +281,9 @@
 		format: null, // function (urlFormat, o, size)
 		bypassDefaultFormat: false,
 		updated: null, // function (urlFormat, o, size)
-		forceEvenSize: false
+		forceEvenSize: false,
+		useDevicePixelRatio: true,
+		devicePixelRatio: 1
 	};
 	
 	var _registerOnce = function () {
@@ -316,6 +322,12 @@
 			// do it here since elements may have
 			// different parents
 			o.container = !!o.container ? $(o.container) : parentContainer;
+			
+			// save device pixel ratio
+			if (o.useDevicePixelRatio) {
+				o.devicePixelRatio = (window.devicePixelRatio || 
+					window.webkitDevicePixelRatio || 1);
+			}
 			
 			// save options
 			t.data(DATA_KEY, o);
