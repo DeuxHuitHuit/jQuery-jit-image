@@ -1,4 +1,4 @@
-/*! jQuery JIT image - v1.2.1 - build 13 - 2014-03-13
+/*! jQuery JIT image - v1.3.0 - build 14 - 2014-06-23
 * https://github.com/DeuxHuitHuit/jQuery-jit-image
 * Copyright (c) 2014 Deux Huit Huit (http://www.deuxhuithuit.com/);
 * Licensed MIT */
@@ -97,30 +97,33 @@
 		};
 	})();
 	
+	var forceEvenValue = function (value) {
+		return value + (value % 2);
+	};
+	
 	var _getSize = function (o) {
 		var size = {
 			width: ~~o.container.width(),
 			height: ~~o.container.height()
 		};
 		
-		if (o.forceEvenSize) {
-			size.width = size.width + (size.width % 2);
-			size.height = size.height + (size.height % 2);
+		if (!!o.forceEvenSize) {
+			size.width = forceEvenValue(size.width);
+			size.height = forceEvenValue(size.height);
 		}
 		
 		return size;
 	};
 	
-	/*jshint maxparams:6 */
-	var _set = function (t, size, url, forceCssResize, callback, parallelLoadingLimit) {
+	var _set = function (t, size, url, o) {
 		if (!!t && !!size) {
-			if (!!forceCssResize && !!size.width) {
+			if (!!o.forceCssResize && !!size.width) {
 				t.attr('width', size.width).width(size.width);
 			} else {
 				t.removeAttr('width').width('');
 			}
 			
-			if (!!forceCssResize && !!size.height) {
+			if (!!o.forceCssResize && !!size.height) {
 				t.attr('height', size.height).height(size.height);
 			} else {
 				t.removeAttr('height').height('');
@@ -135,11 +138,11 @@
 				return function (e) {
 					unregisterEvents();
 					var args = [size, e, err];
-					if (!!parallelLoadingLimit) {
+					if (!!o.parallelLoadingLimit) {
 						loader.done(t, args);
 					}
-					if ($.isFunction(callback)) {
-						callback.apply(t, args);
+					if ($.isFunction(o.load)) {
+						o.load.apply(t, args);
 					}
 					t.trigger('loaded.jitImage', args);
 				};
@@ -168,14 +171,14 @@
 		};
 		if (!!format) {
 			if (!o.bypassDefaultFormat) {
-				urlFormat.width = o.widthPattern.test(format);
-				urlFormat.height = o.heightPattern.test(format);
-				if (urlFormat.width) {
-					format = format.replace(o.widthPattern, ~~size.width);
-				}
-				if (urlFormat.height) {
-					format = format.replace(o.heightPattern, ~~size.height);
-				}
+				$.each(['width', 'height'], function (i, value) {
+					var pattern = o[value + 'Pattern'];
+					urlFormat[value] = pattern.test(format);
+					if (urlFormat[value] && size[value] !== undefined) {
+						format = format.replace(pattern, ~~(size[value] * o.devicePixelRatio));
+					}
+				});
+				
 				urlFormat.url = format;
 				urlFormat.formatted = urlFormat.width || urlFormat.height;
 			}
@@ -205,9 +208,7 @@
 					t,
 					size,
 					urlFormat.url,
-					o.forceCssResize,
-					o.load,
-					o.parallelLoadingLimit
+					o
 				);
 				
 				if (success && $.isFunction(o.updated)) {
@@ -284,7 +285,9 @@
 		format: null, // function (urlFormat, o, size)
 		bypassDefaultFormat: false,
 		updated: null, // function (urlFormat, o, size)
-		forceEvenSize: false
+		forceEvenSize: false,
+		useDevicePixelRatio: true,
+		devicePixelRatio: 1
 	};
 	
 	var _registerOnce = function () {
@@ -323,6 +326,12 @@
 			// do it here since elements may have
 			// different parents
 			o.container = !!o.container ? $(o.container) : parentContainer;
+			
+			// save device pixel ratio
+			if (o.useDevicePixelRatio) {
+				o.devicePixelRatio = (window.devicePixelRatio || 
+					window.webkitDevicePixelRatio || 1);
+			}
 			
 			// save options
 			t.data(DATA_KEY, o);
