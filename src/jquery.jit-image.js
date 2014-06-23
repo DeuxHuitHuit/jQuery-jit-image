@@ -93,6 +93,10 @@
 		};
 	})();
 	
+	var forceEvenValue = function (value) {
+		return value + (value % 2);
+	};
+	
 	var _getSize = function (o) {
 		var size = {
 			width: ~~o.container.width(),
@@ -100,8 +104,8 @@
 		};
 		
 		if (!!o.forceEvenSize) {
-			size.width = size.width + (size.width % 2);
-			size.height = size.height + (size.height % 2);
+			size.width = forceEvenValue(size.width);
+			size.height = forceEvenValue(size.height);
 		}
 		
 		return size;
@@ -163,18 +167,14 @@
 		};
 		if (!!format) {
 			if (!o.bypassDefaultFormat) {
-				urlFormat.width = o.widthPattern.test(format);
-				urlFormat.height = o.heightPattern.test(format);
-				if (urlFormat.width) {
-					format = format.replace(o.widthPattern, 
-						~~(size.width * o.devicePixelRatio)
-					);
-				}
-				if (urlFormat.height) {
-					format = format.replace(o.heightPattern,
-						~~(size.height * o.devicePixelRatio)
-					);
-				}
+				$.each(['width', 'height'], function (i, value) {
+					var pattern = o[value + 'Pattern'];
+					urlFormat[value] = pattern.test(format);
+					if (urlFormat[value] && size[value] !== undefined) {
+						format = format.replace(pattern, ~~(size[value] * o.devicePixelRatio));
+					}
+				});
+				
 				urlFormat.url = format;
 				urlFormat.formatted = urlFormat.width || urlFormat.height;
 			}
