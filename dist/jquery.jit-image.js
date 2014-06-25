@@ -1,4 +1,4 @@
-/*! jQuery JIT image - v1.3.0 - build 14 - 2014-06-23
+/*! jQuery JIT image - v1.3.0 - build 15 - 2014-06-25
 * https://github.com/DeuxHuitHuit/jQuery-jit-image
 * Copyright (c) 2014 Deux Huit Huit (http://www.deuxhuithuit.com/);
 * Licensed MIT */
