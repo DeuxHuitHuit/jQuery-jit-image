@@ -1,8 +1,10 @@
 # jQuery JIT image
 
-#### Version 1.2.1
+#### Version 1.3
 
 ### This is our response to "responsive images"
+
+**Now downloads retina image ready by default**
 
 This jQuery plug-in facilitates the use of jit (just in time) image manipulation on the server with medias queries.
 By default, the plug-in uses the image's parent size for reference, but this can be customized via the `data-container` attribute.
@@ -60,7 +62,8 @@ Possible options and their default values.
 	format: null, // function (urlFormat, o, size)
 	bypassDefaultFormat: false,
 	updated: null, // function (urlFormat, o, size)
-	forceEvenSize: false // force size to use even numbers
+	forceEvenSize: false, // force size to use even numbers
+	useDevicePixelRatio: true // uses dpr when formatting urls ("retina image")
 }
 ````
 
@@ -76,5 +79,5 @@ with the `$.jitImage.defaults` object.
 
 ## License
 
-MIT Licensed. See LICENSE.txt or <http://deuxhuithuit.mit-license.org>
+MIT Licensed. See LICENSE.txt or <http://deuxhuithuit.mit-license.org>    
 (c) [Deux Huit Huit](http://deuxhuithuit.com/?ref=github)
