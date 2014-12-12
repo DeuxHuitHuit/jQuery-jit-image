@@ -35,15 +35,36 @@
 		var active = 0;
 		
 		var checkTimeout = 0;
+		var lastDirtyCheck = $.now();
 		
 		var processQueue = function () {
-			while (!!queue.length && (active < queue[0].limit || !active)) {
+			var shouldProcess = function () {
+				return !!queue.length && (active < queue[0].limit || !active);
+			};
+			
+			if (!shouldProcess() && active > 0 && lastDirtyCheck < $.now() - 100) {
+				// check for dead elements
+				var newQueue = [];
+				$.each(queue, function (i, q) {
+					var dead = !q.elem.closest(document).length;
+					if (dead) {
+						active = Math.max(0, active - 1);
+					} else {
+						newQueue.push(q);
+					}
+				});
+				queue = newQueue;
+				lastDirtyCheck = $.now();
+			}
+			
+			while (shouldProcess()) {
 				var cur = queue.shift();
 				// increment must be done before since
 				// the update call may call .done already
 				active++;
 				cur.update();
 			}
+			
 			checkTimeout = 0;
 		};
 		
