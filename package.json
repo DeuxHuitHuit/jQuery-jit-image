@@ -32,5 +32,10 @@
     "grunt-contrib-qunit": "~0.3.0",
     "grunt-contrib-connect": "~0.5.0"
   },
-  "keywords": []
+  "keywords": [
+    "jquery-plugin",
+    "jit",
+    "image",
+    "responsive"
+  ]
 }
