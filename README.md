@@ -82,4 +82,4 @@ with the `$.jitImage.defaults` object.
 ## License
 
 MIT Licensed. See LICENSE.txt or <http://deuxhuithuit.mit-license.org>    
-(c) [Deux Huit Huit](http://deuxhuithuit.com/?ref=github)
+(c) [Deux Huit Huit](https://deuxhuithuit.com/?ref=github)
