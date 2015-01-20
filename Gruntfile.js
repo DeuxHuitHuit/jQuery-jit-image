@@ -45,9 +45,9 @@ module.exports = function (grunt) {
 				options: {
 					urls: [
 						TEST_FILES,
-						TEST_FILES + '&jquery=1.10.2',
-						TEST_FILES + '&jquery=1.9.1', 
-						TEST_FILES + '&jquery=1.8'
+						TEST_FILES + '&jquery=2.0.3',
+						TEST_FILES + '&jquery=1.11.2',
+						TEST_FILES + '&jquery=1.10.2'
 					]
 				}
 			}
