@@ -2,7 +2,7 @@
 rsion](https://badge.fury.io/js/jQuery-jit-image.svg)](http://badge.fury.io/js/jQuery-jit-image) [![David DM](https://david-dm.org/DeuxHuitHuit/jQuery-jit-image/dev-status.svg?style=flat)](https://david-d
 m.org/DeuxHuitHuit/jQuery-jit-image#info=devDependencies)
 
-#### Version 1.3
+#### Version 1.3.x
 
 ### This is our response to "responsive images"
 
