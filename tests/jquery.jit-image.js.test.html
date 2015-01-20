@@ -55,8 +55,8 @@
 	<div id="integration">
 		<img
 			src=""
-			data-src-format="http://www.deuxhuithuit.com/image/1/$w/$h/assets/img/logo288-accueil-black.png"
-			data-src-format-attributes="http://www.deuxhuithuit.com/image/1/100/0/assets/img/logo288-accueil-black.png?attributes"
+			data-src-format="https://2014.deuxhuithuit.com/image/1/$w/$h/assets/img/logo288-accueil-black.png"
+			data-src-format-attributes="https://2014.deuxhuithuit.com/image/1/100/0/assets/img/logo288-accueil-black.png?attributes"
 			/>
 	</div>
 	
@@ -190,7 +190,7 @@
 				i.width = 100;
 				i.height = 100;
 				$('#qunit-fixture').append(i);
-				$(i).attr('data-src-format', 'http://www.deuxhuithuit.com/image/1/100/100/assets/img/logo288-accueil-black.png');
+				$(i).attr('data-src-format', 'https://2014.deuxhuithuit.com/image/1/100/100/assets/img/logo288-accueil-black.png');
 				
 				$(i).jitImage({
 					load: function (size, e, err) {
@@ -229,7 +229,7 @@
 			
 			asyncTest('$.jit-image.format callback', function integrationTest () {
 				
-				var format = 'http://www.deuxhuithuit.com/workspace/assets/img/logo288-accueil-black.png';
+				var format = 'https://2014.deuxhuithuit.com/workspace/assets/img/logo288-accueil-black.png';
 				
 				integration.jitImage({
 					parallelLoadingLimit: 0,
