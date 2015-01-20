@@ -203,6 +203,7 @@
 			module('jQuery.jit-image.integration');
 			
 			asyncTest('$.fn.jitImage', function integrationTest () {
+				var format = integration.attr('data-src-format');
 				var
 				size = {
 					width: 500
@@ -212,6 +213,7 @@
 				ok(integration.attr('width'), 'width attribute');
 				ok(integration.attr('height'), 'height attribute');
 				
+				integration.attr('data-src-format', 'https://2014.deuxhuithuit.com/image/1/$w/0/assets/img/logo288-accueil-black.png');
 				integration.parent()
 					.width(500)
 					.height(0);
@@ -224,6 +226,7 @@
 					ok(!integration.attr('height'), 'height attribute has been removed');
 					// clean up
 					$.jitImage.remove(integration);
+					integration.attr('data-src-format', format);
 				}, $.jitImage.defaults.eventTimeout+50);
 			});
 			

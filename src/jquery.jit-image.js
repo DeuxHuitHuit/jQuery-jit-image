@@ -213,7 +213,9 @@
 			var size = o.size(o);
 			var urlFormat = _getUrlFromFormat(t, o, size);
 			var urlFormatSuccess = !!urlFormat && !!urlFormat.url;
-			var sizeSucces = !!size && (size.height > 0 || size.width > 0);
+			var sizeSucces = !!size && !!urlFormat &&
+				(!urlFormat.width || size.width > 0) &&
+				(!urlFormat.height || size.height > 0);
 			
 			if (urlFormatSuccess && sizeSucces) {
 				// fix for aspect ratio scaling
