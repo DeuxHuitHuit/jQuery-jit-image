@@ -245,7 +245,7 @@
 		$.each(instances, function _resize(index, element) {
 			var $el = $(element);
 			var data = $el.data(DATA_KEY);
-			var visible = $el.is(':visible');
+			var visible = true;
 			var update = function () {
 				_update($el, data);
 			};
@@ -259,6 +259,9 @@
 				// cancel any pending timeouts
 				clearTimeout(data.jitTimeout);
 				
+				// check if current element is visible
+				visible =  $el.is(':visible');
+				
 				if (!!_defaults.nonVisibleDelay && !visible) {
 					data.jitTimeout = setTimeout(update, _defaults.nonVisibleDelay);
 				} else {
@@ -269,7 +272,6 @@
 			else {
 				loader.push({
 					elem: $el,
-					visible: visible,
 					update: update,
 					limit: data.parallelLoadingLimit
 				});
@@ -298,7 +300,7 @@
 		updateEvents: 'resize orientationchange',
 		eventTimeout: 50,
 		load: null, // function (size, e, err)
-		nonVisibleDelay: 1000,
+		nonVisibleDelay: 1000, // only when parallelLoadingLimit = 0
 		forceCssResize: true,
 		parallelLoadingLimit: 0,
 		format: null, // function (urlFormat, o, size)
@@ -356,7 +358,7 @@
 			t.data(DATA_KEY, o);
 			
 			var update = function () {
-				_update(t, o);	
+				_update(t, o);
 			};
 			
 			// No limit

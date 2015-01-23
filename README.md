@@ -58,7 +58,7 @@ Possible options and their default values.
 	heightPattern: /\$h/i, // regexp to identify the height pattern
 	eventTimeout: 50, // the timer for event dispatching
 	load: function (size) {}, // image loaded callback. Raises the 'loaded.jitImage' too.
-	nonVisibleDelay: 1000,  // delay resizing of non-visible images
+	nonVisibleDelay: 1000,  // delay resizing of non-visible images when parallelLoadingLimit = 0
 	forceCssResize: true, // change the css properties of the image as well
 	parallelLoadingLimit: 0, // limit the number of concurrent requests (0 = disabled)
 	format: null, // function (urlFormat, o, size)
