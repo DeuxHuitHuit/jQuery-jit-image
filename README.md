@@ -1,5 +1,4 @@
-# jQuery JIT image [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) [![npm version](https://badge.fury.io/js/jQuery-jit-image.svg)](http://badge.fury.io/js/jQuery-jit-image) [![David DM](https://david-dm.org/DeuxHuitHuit/jQuery-jit-image/dev-status.svg?style=flat)](https://david-d
-m.org/DeuxHuitHuit/jQuery-jit-image#info=devDependencies)
+# jQuery JIT image [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) [![npm version](https://badge.fury.io/js/jQuery-jit-image.svg)](http://badge.fury.io/js/jQuery-jit-image) [![David DM](https://david-dm.org/DeuxHuitHuit/jQuery-jit-image.svg)](https://david-dm.org/DeuxHuitHuit/jQuery-jit-image)
 
 #### Version 1.3.x
 
