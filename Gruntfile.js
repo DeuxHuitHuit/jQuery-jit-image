@@ -45,9 +45,10 @@ module.exports = function (grunt) {
 				options: {
 					urls: [
 						TEST_FILES,
+						TEST_FILES + '&jquery=2.1.3',
 						TEST_FILES + '&jquery=2.0.3',
 						TEST_FILES + '&jquery=1.11.2',
-						TEST_FILES + '&jquery=1.10.2'
+						
 					]
 				}
 			}
@@ -68,7 +69,7 @@ module.exports = function (grunt) {
 				forin: true,
 				//freeze: true,
 				immed: false, //
-				latedef: true, // late definition
+				latedef: false, // late definition
 				newcap: true, // capitalize ctos
 				noempty: true,
 				nonew: true, // no new ..()

@@ -4,7 +4,7 @@
 	<meta charset="utf-8" /> 
 	<title>jQuery JIT image</title> 
 	
-	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.css" type="text/css"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/qunit/1.10.0/qunit-1.10.0.css" type="text/css"/>
 	
 	<style type="text/css">
 		#integration {
@@ -27,7 +27,7 @@
 				r = /([^&=]+)=?([^&]*)/g,
 				d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
 				q = w.location.search.substring(1),
-				v = '2.1.3';
+				v = '2.2.0';
 			
 			while (e = r.exec(q)) {
 				u[d(e[1])] = d(e[2]);
@@ -37,7 +37,7 @@
 				v = u.jquery;
 			}
 			
-			doc.write('<script src="http://ajax.googleapis.com/ajax/libs/jquery/'+v+'/jquery.min.js">' + "<" + '/' + 'script>');
+			doc.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/'+v+'/jquery.min.js">' + "<" + '/' + 'script>');
 			co.log('\nLoading jQuery v' + v + '\n');
 		})(window, document, console);
 	</script>
