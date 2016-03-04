@@ -1,11 +1,11 @@
-/*! jQuery JIT image - v1.3.2 - build 17 - 2015-01-20
+/*! jQuery JIT image - v1.3.2 - build 20 - 2016-03-04
 * https://github.com/DeuxHuitHuit/jQuery-jit-image
-* Copyright (c) 2015 Deux Huit Huit (https://deuxhuithuit.com/);
+* Copyright (c) 2016 Deux Huit Huit (https://deuxhuithuit.com/);
 * Licensed MIT */
 /*
  *  jQuery JIT image - jQuery plugin
  *
- *  Copyright (c) 2013-2015 Deux Huit Huit (http://www.deuxhuithuit.com/)
+ *  Copyright (c) 2013-2016 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
  *  (https://raw.github.com/DeuxHuitHuit/jQuery-jit-image/master/LICENSE.txt)
  */
@@ -249,7 +249,7 @@
 		$.each(instances, function _resize(index, element) {
 			var $el = $(element);
 			var data = $el.data(DATA_KEY);
-			var visible = $el.is(':visible');
+			var visible = true;
 			var update = function () {
 				_update($el, data);
 			};
@@ -263,6 +263,9 @@
 				// cancel any pending timeouts
 				clearTimeout(data.jitTimeout);
 				
+				// check if current element is visible
+				visible =  $el.is(':visible');
+				
 				if (!!_defaults.nonVisibleDelay && !visible) {
 					data.jitTimeout = setTimeout(update, _defaults.nonVisibleDelay);
 				} else {
@@ -273,7 +276,6 @@
 			else {
 				loader.push({
 					elem: $el,
-					visible: visible,
 					update: update,
 					limit: data.parallelLoadingLimit
 				});
@@ -302,7 +304,7 @@
 		updateEvents: 'resize orientationchange',
 		eventTimeout: 50,
 		load: null, // function (size, e, err)
-		nonVisibleDelay: 1000,
+		nonVisibleDelay: 1000, // only when parallelLoadingLimit = 0
 		forceCssResize: true,
 		parallelLoadingLimit: 0,
 		format: null, // function (urlFormat, o, size)
@@ -360,7 +362,7 @@
 			t.data(DATA_KEY, o);
 			
 			var update = function () {
-				_update(t, o);	
+				_update(t, o);
 			};
 			
 			// No limit

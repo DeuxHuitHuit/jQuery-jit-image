@@ -1,7 +1,7 @@
 /*
  *  jQuery JIT image - jQuery plugin
  *
- *  Copyright (c) 2013-2015 Deux Huit Huit (http://www.deuxhuithuit.com/)
+ *  Copyright (c) 2013-2016 Deux Huit Huit (http://www.deuxhuithuit.com/)
  *  Licensed under the MIT LICENSE
  *  (https://raw.github.com/DeuxHuitHuit/jQuery-jit-image/master/LICENSE.txt)
  */
