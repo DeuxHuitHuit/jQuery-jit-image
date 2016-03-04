@@ -63,7 +63,9 @@ Possible options and their default values.
 	bypassDefaultFormat: false,
 	updated: null, // function (urlFormat, o, size)
 	forceEvenSize: false, // force size to use even numbers
-	useDevicePixelRatio: true // uses dpr when formatting urls ("retina image")
+	useDevicePixelRatio: true, // uses dpr when formatting urls ("retina image")
+	fetchSmallerImages: true // set to true if you want to fetch new smaller images when the viewport shrinks
+	aborted: null // function (urlFormat, o, size)
 }
 ````
 

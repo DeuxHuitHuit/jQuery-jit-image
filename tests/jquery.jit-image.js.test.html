@@ -258,6 +258,27 @@
 				
 			});
 			
+			asyncTest('$.jit-image.aborted callback', function integrationTest () {
+				var oldUrl = integration.attr('src');
+				
+				integration.parent().width(200).height(200);
+				
+				integration.jitImage({
+					parallelLoadingLimit: 0,
+					fetchSmallerImages: false,
+					aborted: function (urlFormat, o, size) {
+						ok(urlFormat.formatted, 'has been formatted');
+						notEqual(oldUrl, urlFormat.url, 'url format is not ' + oldUrl);
+						equal(oldUrl, this.attr('src'), 'img src is ' + oldUrl);
+						
+						start();
+						
+						// clean up
+						$.jitImage.remove(integration);
+					}
+				});
+			});
+			
 			asyncTest('$.jit-image.attributes callback', function integrationTest () {
 				
 				integration.jitImage({

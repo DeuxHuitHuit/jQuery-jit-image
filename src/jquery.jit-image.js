@@ -132,6 +132,18 @@
 		return size;
 	};
 	
+	var _getPreviousSize = function (t, o) {
+		var data = t.data(DATA_KEY);
+		if (!!data && !!data.prev) {
+			return data.prev;
+		}
+		return _getSize(o);
+	};
+	
+	var _isSizeSmallerThen = function (size, compareTo) {
+		return (size.width <= compareTo.width && size.height <= compareTo.height);
+	};
+	
 	var _set = function (t, size, url, o) {
 		if (!!t && !!size) {
 			if (!!o.forceCssResize && !!size.width) {
@@ -209,8 +221,10 @@
 	
 	var _update = function (t, o) {
 		var success = false;
+		var abort = false;
 		if (!!o && !!t) {
 			var size = o.size(o);
+			var previousSize = !o.fetchSmallerImages && o.previousSize(t, o);
 			var urlFormat = _getUrlFromFormat(t, o, size);
 			var urlFormatSuccess = !!urlFormat && !!urlFormat.url;
 			var sizeSucces = !!size && !!urlFormat &&
@@ -218,20 +232,38 @@
 				(!urlFormat.height || size.height > 0);
 			
 			if (urlFormatSuccess && sizeSucces) {
-				// fix for aspect ratio scaling
-				// Only pass the size value if it was matched
-				size.width = urlFormat.width ? size.width : false;
-				size.height = urlFormat.height ? size.height : false;
-				// set the image's url and css
-				success = o.set(
-					t,
-					size,
-					urlFormat.url,
-					o
-				);
+				if (!o.fetchSmallerImages) {
+					if (_isSizeSmallerThen(size, previousSize)) {
+						// abort
+						abort = true;
+					}
+					else {
+						// save new bigger size
+						t.data(DATA_KEY).prev = size;
+					}
+				}
 				
-				if (success && $.isFunction(o.updated)) {
-					o.updated.call(t, urlFormat, o, size);
+				if (!abort) {
+					// fix for aspect ratio scaling
+					// Only pass the size value if it was matched
+					size.width = urlFormat.width ? size.width : false;
+					size.height = urlFormat.height ? size.height : false;
+					// set the image's url and css
+					success = o.set(
+						t,
+						size,
+						urlFormat.url,
+						o
+					);
+					
+					if (success && $.isFunction(o.updated)) {
+						o.updated.call(t, urlFormat, o, size);
+					}
+				} else {
+					success = false;
+					if ($.isFunction(o.aborted)) {
+						o.aborted.call(t, urlFormat, o, size);
+					}
 				}
 			}
 		}
@@ -308,7 +340,10 @@
 		updated: null, // function (urlFormat, o, size)
 		forceEvenSize: false,
 		useDevicePixelRatio: true,
-		devicePixelRatio: 1
+		devicePixelRatio: 1,
+		fetchSmallerImages: true,
+		previousSize: _getPreviousSize,
+		aborted: null // function (urlFormat, o, size)
 	};
 	
 	var _registerOnce = function () {
