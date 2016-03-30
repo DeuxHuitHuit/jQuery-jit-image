@@ -215,7 +215,7 @@
 				
 				integration.attr('data-src-format', 'https://2014.deuxhuithuit.com/image/1/$w/0/assets/img/logo288-accueil-black.png');
 				integration.parent()
-					.width(500)
+					.width(size.width)
 					.height(0);
 					
 				win.trigger('resize');
@@ -227,7 +227,10 @@
 					// clean up
 					$.jitImage.remove(integration);
 					integration.attr('data-src-format', format);
-				}, $.jitImage.defaults.eventTimeout+50);
+					integration.parent()
+					.width('')
+					.height('');
+				}, $.jitImage.defaults.eventTimeout+100);
 			});
 			
 			asyncTest('$.jit-image.format callback', function integrationTest () {
@@ -261,6 +264,13 @@
 			asyncTest('$.jit-image.aborted callback', function integrationTest () {
 				var oldUrl = integration.attr('src');
 				
+				// simulate larger previous size
+				integration.data('jitImageOptions', $.extend(integration.data('jitImageOptions'), {
+					prev: {
+						width: 500,
+						height: 500
+					}
+				}));
 				integration.parent().width(200).height(200);
 				
 				integration.jitImage({
@@ -275,6 +285,14 @@
 						
 						// clean up
 						$.jitImage.remove(integration);
+						integration.parent().width('').height('');
+					},
+					updated: function () {
+						start();
+						ok(false, 'updated has been called');
+						// clean up
+						$.jitImage.remove(integration);
+						integration.parent().width('').height('');
 					}
 				});
 			});
