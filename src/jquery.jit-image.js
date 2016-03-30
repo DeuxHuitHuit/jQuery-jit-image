@@ -241,8 +241,8 @@
 						abort = true;
 					}
 					else {
-						// save new bigger size
-						t.data(DATA_KEY).prev = size;
+						// copy new bigger size
+						t.data(DATA_KEY).prev = $.extend({}, size);
 					}
 				}
 				
