@@ -137,7 +137,10 @@
 		if (!!data && !!data.prev) {
 			return data.prev;
 		}
-		return _getSize(o);
+		return {
+			width: 0,
+			height: 0
+		};
 	};
 	
 	var _isSizeSmallerThen = function (size, compareTo) {
