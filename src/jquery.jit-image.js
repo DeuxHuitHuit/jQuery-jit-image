@@ -193,8 +193,25 @@
 		return false;
 	};
 	
+	var _getFixRatioInfo = function (t) {
+		var attrImageRatioValue = t.attr('data-jit-image-ratio');
+		var imageRatio = parseFloat(attrImageRatioValue);
+		var isFixRatio = !!attrImageRatioValue && imageRatio > 0;
+
+		return {
+			isEnabled: isFixRatio,
+			imageRatio: imageRatio
+		}
+	}
+
 	var _getUrlFromFormat = function (t, o, size) {
 		var format = t.attr(getValue(o.dataAttribute));
+		var fixRatioInfo = _getFixRatioInfo(t);
+		var fixRatioState = {
+			isValid: false,
+			width: false,
+			height: false
+		};
 		var urlFormat = {
 			url: format,
 			height: false,
@@ -203,11 +220,46 @@
 		};
 		if (!!format) {
 			if (!o.bypassDefaultFormat) {
+				//Compute format template exist
 				$.each(['width', 'height'], function (i, value) {
 					var pattern = o[value + 'Pattern'];
 					urlFormat[value] = pattern.test(format);
+				});
+
+				// Check for fixed image ratio
+				if (!!urlFormat.width &&
+					!!urlFormat.height &&
+					fixRatioInfo.isEnabled) {
+
+					//Compute good size keeping ratio and covering all the size;
+					if (size.width > 0 && size.height > 0) {
+						var sizeRatio = size.width / size.height;
+						var isWidth = true;
+						
+						if (sizeRatio <= 1) {
+							//Landscape or square container
+							isWidth = fixRatioInfo.imageRatio < sizeRatio ? false : true;
+						} else {
+							//Portrait or else.
+							isWidth = fixRatioInfo.imageRatio > sizeRatio ? true : false;
+						}
+
+						fixRatioState.width = isWidth;
+						fixRatioState.height = !isWidth;
+						fixRatioState.isValid = true;
+					}
+				}
+
+				//Compute final format url
+				$.each(['width', 'height'], function (i, value) {
+					var pattern = o[value + 'Pattern'];
+					
 					if (urlFormat[value] && size[value] !== undefined) {
-						format = format.replace(pattern, ~~(size[value] * o.devicePixelRatio));
+						if (fixRatioInfo.isEnabled && fixRatioState.isValid && fixRatioState[value]) {
+							format = format.replace(pattern, '0');
+						} else {
+							format = format.replace(pattern, ~~(size[value] * o.devicePixelRatio));
+						}
 					}
 				});
 				
@@ -221,6 +273,10 @@
 		}
 		return urlFormat;
 	};
+
+	var _hasRatioChanged = function (size, compareTo) {
+		return Math.ceil((size.width / size.height) * 100) !== Math.ceil((compareTo.width / compareTo.height) * 100);
+	};
 	
 	var _update = function (t, o) {
 		var success = false;
@@ -233,15 +289,18 @@
 			var sizeSucces = !!size && !!urlFormat &&
 				(!urlFormat.width || size.width > 0) &&
 				(!urlFormat.height || size.height > 0);
-			
+
 			if (urlFormatSuccess && sizeSucces) {
 				if (!o.fetchSmallerImages) {
-					if (_isSizeSmallerThen(size, previousSize)) {
+					var fixRatioInfo = _getFixRatioInfo(t);
+					var ratioChanged = _hasRatioChanged(size, previousSize);
+					var isSmaller = _isSizeSmallerThen(size, previousSize)
+					if (isSmaller && !ratioChanged) {
 						// abort
 						abort = true;
 					}
 					else {
-						// copy new bigger size
+						// copy new bigger size or with a different ratio size
 						t.data(DATA_KEY).prev = $.extend({}, size);
 					}
 				}
@@ -251,6 +310,7 @@
 					// Only pass the size value if it was matched
 					size.width = urlFormat.width ? size.width : false;
 					size.height = urlFormat.height ? size.height : false;
+
 					// set the image's url and css
 					success = o.set(
 						t,
