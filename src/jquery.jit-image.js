@@ -265,7 +265,9 @@
 	};
 
 	var _hasRatioChanged = function (size, compareTo) {
-		return Math.ceil((size.width / size.height) * 100) !== Math.ceil((compareTo.width / compareTo.height) * 100);
+		var sizeRatio = Math.ceil((size.width / size.height) * 100);
+		var compareRatio = Math.ceil((compareTo.width / compareTo.height) * 100);
+		return sizeRatio !== compareRatio;
 	};
 	
 	var _update = function (t, o) {
