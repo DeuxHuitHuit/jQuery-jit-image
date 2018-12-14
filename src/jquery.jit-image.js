@@ -201,7 +201,7 @@
 		return {
 			isEnabled: isFixRatio,
 			imageRatio: imageRatio
-		}
+		};
 	}
 
 	var _getUrlFromFormat = function (t, o, size) {
@@ -220,7 +220,7 @@
 		};
 		if (!!format) {
 			if (!o.bypassDefaultFormat) {
-				//Compute format template exist
+				// Compute format template exist
 				$.each(['width', 'height'], function (i, value) {
 					var pattern = o[value + 'Pattern'];
 					urlFormat[value] = pattern.test(format);
