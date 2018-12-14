@@ -202,7 +202,7 @@
 			isEnabled: isFixRatio,
 			imageRatio: imageRatio
 		};
-	}
+	};
 
 	var _getUrlFromFormat = function (t, o, size) {
 		var format = t.attr(getValue(o.dataAttribute));
