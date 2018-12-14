@@ -28,7 +28,7 @@ module.exports = function (grunt) {
 			'<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
 			'* Copyright (c) <%= grunt.template.today("yyyy") %> ' +
 			'<%= pkg.author.name %> (<%= pkg.author.url %>);\n' +
-			'* Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n'
+			'* License <%= pkg.license %> %> */\n'
 		},
 		concat: {
 			options: {
@@ -144,8 +144,8 @@ module.exports = function (grunt) {
 				options: {
 					//jsLintXML: 'report.xml', // create XML JSLint-like report
 					errorsOnly: false, // show only maintainability errors
-					cyclomatic: 11, // 3
-					halstead: 23, // 8
+					cyclomatic: 23, // 3
+					halstead: 27, // 8
 					maintainability: 95 //100
 				}
 			}
