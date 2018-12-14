@@ -194,7 +194,7 @@
 	};
 	
 	var _getFixRatioInfo = function (t) {
-		var attrImageRatioValue = t.attr('data-jit-image-ratio');
+		var attrImageRatioValue = t.attr(getValue(o.dataAttributeRatio));
 		var imageRatio = parseFloat(attrImageRatioValue);
 		var isFixRatio = !!attrImageRatioValue && imageRatio > 0;
 
@@ -386,6 +386,7 @@
 	var _defaults = {
 		container: null,
 		dataAttribute: dataAttribute, // can also be function
+		dataAttributeRatio: 'data-jit-image-ratio',
 		defaultSelector: defaultSelector,
 		containerDataAttribute: 'data-container', // can also be function
 		size: _getSize,
