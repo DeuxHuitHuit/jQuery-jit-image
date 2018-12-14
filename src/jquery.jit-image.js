@@ -284,7 +284,7 @@
 				if (!o.fetchSmallerImages) {
 					var fixRatioInfo = _getFixRatioInfo(t, o);
 					var ratioChanged = _hasRatioChanged(size, previousSize);
-					var isSmaller = _isSizeSmallerThen(size, previousSize)
+					var isSmaller = _isSizeSmallerThen(size, previousSize);
 					if (isSmaller && !ratioChanged) {
 						// abort
 						abort = true;
