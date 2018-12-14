@@ -234,18 +234,8 @@
 					//Compute good size keeping ratio and covering all the size;
 					if (size.width > 0 && size.height > 0) {
 						var sizeRatio = size.width / size.height;
-						var isWidth = true;
-						
-						if (sizeRatio <= 1) {
-							//Landscape or square container
-							isWidth = fixRatioInfo.imageRatio < sizeRatio ? false : true;
-						} else {
-							//Portrait or else.
-							isWidth = fixRatioInfo.imageRatio > sizeRatio ? true : false;
-						}
-
-						fixRatioState.width = isWidth;
-						fixRatioState.height = !isWidth;
+						fixRatioState.width = fixRatioInfo.imageRatio >= sizeRatio;
+						fixRatioState.height = !fixRatioState.width;
 						fixRatioState.isValid = true;
 					}
 				}
