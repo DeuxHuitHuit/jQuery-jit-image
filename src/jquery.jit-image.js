@@ -245,7 +245,9 @@
 					var pattern = o[value + 'Pattern'];
 					
 					if (urlFormat[value] && size[value] !== undefined) {
-						if (fixRatioInfo.isEnabled && fixRatioState.isValid && fixRatioState[value]) {
+						if (fixRatioInfo.isEnabled &&
+							fixRatioState.isValid &&
+							fixRatioState[value]) {
 							format = format.replace(pattern, '0');
 						} else {
 							format = format.replace(pattern, ~~(size[value] * o.devicePixelRatio));
