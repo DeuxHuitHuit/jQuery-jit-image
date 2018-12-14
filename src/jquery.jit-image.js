@@ -240,7 +240,7 @@
 					}
 				}
 
-				//Compute final format url
+				// Compute final format url
 				$.each(['width', 'height'], function (i, value) {
 					var pattern = o[value + 'Pattern'];
 					
