@@ -193,7 +193,7 @@
 		return false;
 	};
 	
-	var _getFixRatioInfo = function (t) {
+	var _getFixRatioInfo = function (t, o) {
 		var attrImageRatioValue = t.attr(getValue(o.dataAttributeRatio));
 		var imageRatio = parseFloat(attrImageRatioValue);
 		var isFixRatio = !!attrImageRatioValue && imageRatio > 0;
@@ -206,7 +206,7 @@
 
 	var _getUrlFromFormat = function (t, o, size) {
 		var format = t.attr(getValue(o.dataAttribute));
-		var fixRatioInfo = _getFixRatioInfo(t);
+		var fixRatioInfo = _getFixRatioInfo(t, o);
 		var fixRatioState = {
 			isValid: false,
 			width: false,
@@ -292,7 +292,7 @@
 
 			if (urlFormatSuccess && sizeSucces) {
 				if (!o.fetchSmallerImages) {
-					var fixRatioInfo = _getFixRatioInfo(t);
+					var fixRatioInfo = _getFixRatioInfo(t, o);
 					var ratioChanged = _hasRatioChanged(size, previousSize);
 					var isSmaller = _isSizeSmallerThen(size, previousSize)
 					if (isSmaller && !ratioChanged) {
