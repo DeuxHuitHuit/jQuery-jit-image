@@ -110,6 +110,10 @@
 			},
 			queue: function () {
 				return queue;
+			},
+			empty: function () {
+				queue = [];
+				active = 0;
 			}
 		};
 	})();
