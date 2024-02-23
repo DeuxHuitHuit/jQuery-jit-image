@@ -1,6 +1,6 @@
-/*! jQuery JIT image - v1.5.0 - build 27 - 2018-12-14
+/*! jQuery JIT image - v1.6.0 - build 28 - 2024-02-23
 * https://github.com/DeuxHuitHuit/jQuery-jit-image
-* Copyright (c) 2018 Deux Huit Huit (https://deuxhuithuit.com/);
+* Copyright (c) 2024 Deux Huit Huit (https://deuxhuithuit.com/);
 * License MIT %> */
 /*
  *  jQuery JIT image - jQuery plugin
@@ -114,6 +114,10 @@
 			},
 			queue: function () {
 				return queue;
+			},
+			empty: function () {
+				queue = [];
+				active = 0;
 			}
 		};
 	})();
